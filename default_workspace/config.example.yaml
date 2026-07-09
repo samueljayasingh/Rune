@@ -11,26 +11,32 @@ default_agent: rune
 
 # Optional: per-role model tier routing, layered on top of `llm` above.
 # Falls back to the single `llm` model when disabled or a role is unset.
+# `classify` routes agent_turn by content: a free local pass labels the
+# request (daily/coding/reasoning), then that category picks the real tier.
 # model_routing:
 #   enabled: true
 #   tiers:
-#     local:
+#     daily:
 #       provider: ollama
-#       model: gemma2:9b
+#       model: hf.co/unsloth/gemma-4-E2B-it-GGUF
 #       api_base: http://localhost:11434
 #       api_key: "ollama"
-#       scored: false          # dev/testing only
-#     cheap:
-#       provider: fireworks_ai
-#       model: accounts/fireworks/models/deepseek-v4-flash
-#       api_key: ${FIREWORKS_API_KEY}
-#     capable:
+#     coding:
 #       provider: fireworks_ai
 #       model: accounts/fireworks/models/kimi-k2p7-code
 #       api_key: ${FIREWORKS_API_KEY}
+#     reasoning:
+#       provider: fireworks_ai
+#       model: accounts/fireworks/models/deepseek-v4-flash
+#       api_key: ${FIREWORKS_API_KEY}
 #   roles:
-#     agent_turn: {default: cheap, escalate_to: capable}
-#     compaction: {default: local, escalate_to: cheap}
+#     agent_turn:
+#       classify: true
+#       classifier_tier: daily
+#       categories: {daily: daily, coding: coding, reasoning: reasoning}
+#       default: daily
+#       escalate_to: reasoning
+#     compaction: {default: daily, escalate_to: coding}
 
 # Get your API key at https://brave.com/search/api/
 # websearch:

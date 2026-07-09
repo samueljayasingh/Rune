@@ -73,10 +73,19 @@ class ModelTierConfig(BaseModel):
 
 
 class ModelRolePolicy(BaseModel):
-    """Which tier a call-site role defaults to, and where to escalate on failure."""
+    """Which tier a call-site role defaults to, and where to escalate on failure.
+
+    If `classify` is set, a cheap pre-call to `classifier_tier` (default:
+    `default`) picks a category from `categories`, which maps to the tier
+    actually used for this call. Falls back to `default` if classification
+    is off, fails, or returns an unrecognized category.
+    """
 
     default: str
     escalate_to: str | None = None
+    classify: bool = False
+    classifier_tier: str | None = None
+    categories: dict[str, str] = Field(default_factory=dict)
 
 
 class ModelRoutingConfig(BaseModel):

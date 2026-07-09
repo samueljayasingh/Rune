@@ -79,7 +79,9 @@ class LLMProvider:
         Returns:
             Tuple of (content, tool_calls, stop_reason)
         """
-        candidates = resolve_tiers(self.model_routing, role, needs_tools=bool(tools))
+        candidates = await resolve_tiers(
+            self.model_routing, role, needs_tools=bool(tools), messages=messages
+        )
         if not candidates:
             candidates = [
                 {
