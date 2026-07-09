@@ -157,6 +157,7 @@ class ContextGuard:
         response, _, _ = await state.agent.llm.chat(
             [{"role": "user", "content": summary_prompt}],
             [],  # No tools needed
+            role="compaction",
         )
 
         messages: list[Message] = []

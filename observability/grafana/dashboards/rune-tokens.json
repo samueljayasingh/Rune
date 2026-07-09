@@ -1,0 +1,111 @@
+{
+  "title": "Rune - Token Routing",
+  "uid": "rune-tokens",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Fireworks tokens spent (total)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rune_fireworks_tokens_total)", "legendFormat": "fireworks tokens" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Tokens saved (served locally)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rune_local_tokens_saved_total)", "legendFormat": "tokens saved" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "% of calls served locally (not billed to Fireworks)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent" } },
+      "targets": [
+        {
+          "expr": "100 * sum(rune_llm_calls_total{provider!=\"fireworks_ai\", outcome=\"success\"}) / sum(rune_llm_calls_total{outcome=\"success\"})",
+          "legendFormat": "% local"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failed calls (escalation triggers)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rune_llm_calls_total{outcome=\"error\"})", "legendFormat": "errors" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Fireworks tokens over time, by role",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(rune_fireworks_tokens_total[5m])) by (role)",
+          "legendFormat": "{{role}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Tokens saved over time, by role",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(rune_local_tokens_saved_total[5m])) by (role)",
+          "legendFormat": "{{role}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Calls by tier and model",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rune_llm_calls_total{outcome=\"success\"}) by (tier, model)",
+          "legendFormat": "{{tier}} / {{model}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Prompt vs completion tokens, by tier",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(rune_llm_prompt_tokens_total[5m])) by (tier)",
+          "legendFormat": "prompt / {{tier}}"
+        },
+        {
+          "expr": "sum(rate(rune_llm_completion_tokens_total[5m])) by (tier)",
+          "legendFormat": "completion / {{tier}}"
+        }
+      ]
+    }
+  ]
+}

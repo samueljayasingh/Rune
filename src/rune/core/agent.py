@@ -34,7 +34,9 @@ class Agent:
     def __init__(self, agent_def: "AgentDef", context: "SharedContext") -> None:
         self.agent_def = agent_def
         self.context = context
-        self.llm = LLMProvider.from_config(agent_def.llm)
+        self.llm = LLMProvider.from_config(
+            agent_def.llm, model_routing=context.config.model_routing
+        )
 
     def _build_tools(self, include_post_message: bool) -> ToolRegistry:
         """Build a ToolRegistry with tools appropriate for the session."""
@@ -191,7 +193,9 @@ class AgentSession:
         while True:
             messages = self.state.build_messages()
             self.state = await self.context_guard.check_and_compact(self.state)
-            content, tool_calls, stop_reason = await self.agent.llm.chat(messages, tool_schemas)
+            content, tool_calls, stop_reason = await self.agent.llm.chat(
+                messages, tool_schemas, role="agent_turn"
+            )
 
             tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
                 {

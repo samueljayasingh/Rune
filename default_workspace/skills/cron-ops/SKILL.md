@@ -70,7 +70,7 @@ Cron jobs run in the background with no direct output to the user. The agent exe
 ---
 name: Cron Name
 description: Brief description of what this cron does
-agent: pickle
+agent: rune
 schedule: "0 9 * * *"
 one_off: false  # Set to true for one-time jobs (optional, defaults to false)
 ---
@@ -83,7 +83,7 @@ Task description for the agent to execute.
 ---
 name: Daily Summary
 description: Sends a daily summary of activity
-agent: pickle
+agent: rune
 schedule: "0 9 * * *"
 ---
 
@@ -95,7 +95,7 @@ Check my inbox and use post_message to send me a summary.
 ---
 name: Meeting Reminder
 description: Reminder for tomorrow's meeting
-agent: pickle
+agent: rune
 schedule: "30 14 21 3 *"
 one_off: true
 ---

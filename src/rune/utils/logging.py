@@ -2,9 +2,15 @@
 
 import logging
 import sys
+import warnings
 
 from rune.utils.config import Config
 from logging.handlers import RotatingFileHandler
+
+# litellm's ModelResponse doesn't perfectly match the type it serializes
+# against internally; pydantic warns on every call. Noise, not a real bug.
+warnings.filterwarnings("ignore", message="Pydantic serializer warnings")
+
 
 def setup_logging(config: Config, console_output: bool = False) -> None:
     """Set up logging for Rune."""

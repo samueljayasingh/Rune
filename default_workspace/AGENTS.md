@@ -6,8 +6,8 @@ This workspace has the following agents configured:
 
 | Agent | Description |
 |-------|-------------|
-| pickle | Default agent for general conversations, daily tasks, coding help, and creative work |
-| cookie | Memory manager - always query for memory operations (store and retrieve) |
+| rune | Default agent for general conversations, daily tasks, coding help, and creative work |
+| ledger | Memory manager - always query for memory operations (store and retrieve) |
 
 ## Dispatching Tasks
 
@@ -30,25 +30,25 @@ subagent_dispatch(agent_id="agent_name", task="description of what to do")
 ```python
 # Store a user preference
 subagent_dispatch(
-    agent_id="cookie",
+    agent_id="ledger",
     task="Remember that the user prefers TypeScript over JavaScript"
 )
 
 # Retrieve context about a topic
 subagent_dispatch(
-    agent_id="cookie",
+    agent_id="ledger",
     task="What do you know about the user's coding preferences?"
 )
 
 # Store project information
 subagent_dispatch(
-    agent_id="cookie",
+    agent_id="ledger",
     task="Remember that the user is working on a Python project using FastAPI"
 )
 ```
 
 ## Important Notes
 
-- Always use Cookie for memory operations - don't read/write memory files directly
-- Cookie manages the memory axis: topics/ (timeless facts), projects/ (project context), daily-notes/ (events)
+- Always use Ledger for memory operations - don't read/write memory files directly
+- Ledger manages the memory axis: topics/ (timeless facts), projects/ (project context), daily-notes/ (events)
 - Dispatched tasks are asynchronous - the agent will handle the details

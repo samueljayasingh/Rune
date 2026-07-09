@@ -1,13 +1,38 @@
 """Configuration management with hot reload support."""
 
 import logging
+import os
+import re
 from pathlib import Path
 from typing import Any, Literal
 
 import yaml
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field, field_validator, model_validator
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+
+_ENV_VAR_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _substitute_env_vars(value: Any) -> Any:
+    """Recursively replace ${VAR_NAME} in strings with os.environ values."""
+    if isinstance(value, str):
+        return _ENV_VAR_PATTERN.sub(
+            lambda m: os.environ.get(m.group(1), m.group(0)), value
+        )
+    if isinstance(value, dict):
+        return {k: _substitute_env_vars(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_substitute_env_vars(v) for v in value]
+    return value
+
+
+def litellm_model_id(provider: str, model: str) -> str:
+    """Build the model id litellm expects, prefixing with provider unless already prefixed."""
+    if provider == "openai" or model.startswith(f"{provider}/"):
+        return model
+    return f"{provider}/{model}"
 
 
 class LLMConfig(BaseModel):
@@ -26,6 +51,40 @@ class LLMConfig(BaseModel):
         if v is not None and not v.startswith(("http://", "https://")):
             raise ValueError("api_base must be a valid URL")
         return v
+
+    @property
+    def litellm_model(self) -> str:
+        return litellm_model_id(self.provider, self.model)
+
+
+class ModelTierConfig(BaseModel):
+    """A single routable model tier (e.g. local Gemma, Fireworks cheap/capable)."""
+
+    provider: str
+    model: str
+    api_key: str | None = None
+    api_base: str | None = None
+    supports_tools: bool = True
+    scored: bool = True  # False = dev/local only, excluded when grading via Fireworks
+
+    @property
+    def litellm_model(self) -> str:
+        return litellm_model_id(self.provider, self.model)
+
+
+class ModelRolePolicy(BaseModel):
+    """Which tier a call-site role defaults to, and where to escalate on failure."""
+
+    default: str
+    escalate_to: str | None = None
+
+
+class ModelRoutingConfig(BaseModel):
+    """Per-role model tier routing, layered on top of the base `llm` config."""
+
+    enabled: bool = False
+    tiers: dict[str, ModelTierConfig] = Field(default_factory=dict)
+    roles: dict[str, ModelRolePolicy] = Field(default_factory=dict)
 
 
 class TelegramConfig(BaseModel):
@@ -84,6 +143,7 @@ class Config(BaseModel):
 
     workspace: Path
     llm: LLMConfig
+    model_routing: ModelRoutingConfig = Field(default_factory=ModelRoutingConfig)
     default_agent: str
     agents_path: Path = Field(default=Path("agents"))
     skills_path: Path = Field(default=Path("skills"))
@@ -120,6 +180,8 @@ class Config(BaseModel):
     @classmethod
     def load(cls, workspace_dir: Path) -> "Config":
         """Load configuration from workspace directory."""
+        load_dotenv(workspace_dir / ".env")
+        load_dotenv()  # also pick up a .env in the current working directory
         config_data = cls._load_merged_configs(workspace_dir)
         config_data["workspace"] = workspace_dir
         return cls.model_validate(config_data)
@@ -140,7 +202,7 @@ class Config(BaseModel):
             with open(runtime_config) as f:
                 config_data = cls._deep_merge(config_data, yaml.safe_load(f) or {})
 
-        return config_data
+        return _substitute_env_vars(config_data)
 
     @staticmethod
     def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:

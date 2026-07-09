@@ -1,7 +1,8 @@
 """FastAPI application with WebSocket support."""
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from rune.core.context import SharedContext
 
@@ -23,6 +24,11 @@ def create_app(context: SharedContext) -> FastAPI:
         allow_headers=["*"],
     )
 
+
+    @app.get("/metrics")
+    async def metrics() -> Response:
+        """Prometheus scrape endpoint for token routing analytics."""
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     # WebSocket endpoint
     @app.websocket("/ws")

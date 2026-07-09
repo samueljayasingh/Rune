@@ -44,6 +44,7 @@ docs/
 
 **/config.user.yaml
 **/config.runtime.yaml
+.env
 
 **/uv.lock
 
