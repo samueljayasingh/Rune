@@ -36,6 +36,10 @@ class WebSearchProvider(ABC):
                 from .brave import BraveSearchProvider
 
                 return BraveSearchProvider(config)
+            case "firecrawl":
+                from .firecrawl import FirecrawlSearchProvider
+
+                return FirecrawlSearchProvider(config)
             case _:
                 raise ValueError(
                     f"Unknown websearch provider: {config.websearch.provider}"

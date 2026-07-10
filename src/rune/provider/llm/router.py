@@ -24,6 +24,26 @@ logger = logging.getLogger(__name__)
 
 CLASSIFY_PROMPT = (
     "Classify the user's request below into exactly one category: {categories}.\n"
+    "Judge by what the user is actually asking you to DO, not by words that merely "
+    "remind you of a category (e.g. \"hello world\" is a greeting, not a coding "
+    "request, even though it's a famous programming example). If a message mixes "
+    "a greeting with a real task, classify by the task. If truly ambiguous or just "
+    "a bare command/word, default to daily.\n\n"
+    "- daily: greetings, small talk, one-step everyday facts/conversions, creative "
+    "writing, vague/ambiguous one-word input\n"
+    "- coding: write, debug, explain, or review code; error messages/stack traces; "
+    "questions about algorithms or code behavior\n"
+    "- reasoning: multi-step math, logic, planning, or financial calculations\n\n"
+    "Examples:\n"
+    "Request: hello world -> daily\n"
+    "Request: what's 15% of 340 -> daily\n"
+    "Request: convert 5 miles to km -> daily\n"
+    "Request: write me a poem about the sea -> daily\n"
+    "Request: hey, can you write me a quicksort in Python -> coding\n"
+    "Request: TypeError: undefined is not a function, what does this mean -> coding\n"
+    "Request: what's the time complexity of this sort? -> coding\n"
+    "Request: if I invest $500/month at 7% for 30 years, how much will I have -> reasoning\n"
+    "Request: two trains leave stations 300 miles apart, when do they meet -> reasoning\n\n"
     "Reply with only the category word, nothing else.\n\n"
     "Request: {content}"
 )
@@ -52,12 +72,6 @@ async def _classify(
     prompt = CLASSIFY_PROMPT.format(
         categories=", ".join(policy.categories), content=content
     )
-    extra: dict = {}
-    if tier.provider == "ollama":
-        # Ollama's thinking models otherwise restate the category list
-        # verbatim in their chain-of-thought, polluting `.content` and
-        # making substring matching pick the wrong word.
-        extra["think"] = False
 
     try:
         response = await acompletion(
@@ -67,7 +81,6 @@ async def _classify(
             api_base=tier.api_base,
             temperature=0,
             max_tokens=20,
-            **extra,
         )
         label = (response.choices[0].message.content or "").strip().lower()
     except Exception as e:

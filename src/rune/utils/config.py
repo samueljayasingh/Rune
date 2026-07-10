@@ -113,10 +113,10 @@ class DiscordConfig(BaseModel):
     allowed_user_ids: list[str] = Field(default_factory=list)
 
 
-class BraveWebSearchConfig(BaseModel):
-    """Configuration for web search provider."""
+class FirecrawlSearchConfig(BaseModel):
+    """Configuration for Firecrawl web search provider."""
 
-    provider: Literal["brave"] = "brave"
+    provider: Literal["firecrawl"] = "firecrawl"
     api_key: str
 
 
@@ -161,7 +161,7 @@ class Config(BaseModel):
     logging_path: Path = Field(default=Path(".logs"))
     history_path: Path = Field(default=Path(".history"))
     event_path: Path = Field(default=Path(".event"))
-    websearch: BraveWebSearchConfig | None = None
+    websearch: FirecrawlSearchConfig | None = None
     webread: Crawl4AIWebReadConfig | None = None
     channels: ChannelConfig = Field(default_factory=ChannelConfig)
     api: ApiConfig = Field(default_factory=ApiConfig)

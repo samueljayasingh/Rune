@@ -70,6 +70,7 @@ class Server:
             else:
                 logger.warning("Channel enabled but no channels configured")
 
+        self.context.workers = self.workers
         logger.info(f"Server setup complete with {len(self.workers)} core workers")
 
     def _start_workers(self) -> None:

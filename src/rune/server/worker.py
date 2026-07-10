@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import time
 from abc import ABC, abstractmethod
 
 
@@ -12,6 +13,7 @@ class Worker(ABC):
         self.context = context
         self.logger = logging.getLogger(f"rune.server.{self.__class__.__name__}")
         self._task: asyncio.Task | None = None
+        self.started_at: float | None = None
 
     @abstractmethod
     async def run(self) -> None:
@@ -21,6 +23,7 @@ class Worker(ABC):
     def start(self) -> asyncio.Task:
         """Start the worker as an asyncio Task."""
         self._task = asyncio.create_task(self.run())
+        self.started_at = time.time()
         return self._task
 
     def is_running(self) -> bool:

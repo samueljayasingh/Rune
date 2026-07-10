@@ -1,4 +1,4 @@
-"""Brave Search API provider."""
+"""Firecrawl web search provider."""
 
 from typing import TYPE_CHECKING
 import httpx
@@ -9,35 +9,32 @@ if TYPE_CHECKING:
     from rune.utils.config import Config
 
 
-class BraveSearchProvider(WebSearchProvider):
-    """Web search provider using Brave Search API."""
+class FirecrawlSearchProvider(WebSearchProvider):
+    """Web search provider using Firecrawl's /search API."""
 
-    BASE_URL = "https://api.search.brave.com/res/v1/web/search"
+    BASE_URL = "https://api.firecrawl.dev/v1/search"
 
     def __init__(self, config: "Config"):
-        """Initialize Brave Search provider."""
+        """Initialize Firecrawl provider."""
         self.api_key = config.websearch.api_key
 
     async def search(self, query: str) -> list[SearchResult]:
-        """Search the web using Brave Search API."""
+        """Search the web using Firecrawl's API."""
         async with httpx.AsyncClient() as client:
-            response = await client.get(
+            response = await client.post(
                 self.BASE_URL,
                 headers={
-                    "Accept": "application/json",
-                    "X-Subscription-Token": self.api_key,
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
                 },
-                params={
-                    "q": query,
-                    "count": 10,
-                },
+                json={"query": query, "limit": 10},
                 timeout=30.0,
             )
             response.raise_for_status()
             data = response.json()
 
         results = []
-        for item in data.get("web", {}).get("results", []):
+        for item in data.get("data", []):
             results.append(
                 SearchResult(
                     title=item.get("title", ""),

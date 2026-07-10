@@ -29,6 +29,7 @@ class SharedContext:
     channels: list[Channel[Any]]
     eventbus: EventBus
     websocket_worker: "WebSocketWorker | None"
+    workers: list  # set by Server after it builds its worker list; empty until then
 
     def __init__(
         self, config: Config, channels: list[Channel[Any]] | None = None
@@ -49,3 +50,4 @@ class SharedContext:
 
         self.eventbus = EventBus(self)
         self.websocket_worker = None
+        self.workers = []

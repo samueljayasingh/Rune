@@ -17,10 +17,10 @@ default_agent: rune
 #   enabled: true
 #   tiers:
 #     daily:
-#       provider: ollama
-#       model: hf.co/unsloth/gemma-4-E2B-it-GGUF
-#       api_base: http://localhost:11434
-#       api_key: "ollama"
+#       provider: hosted_vllm
+#       model: google/gemma-4-E2B-it
+#       api_base: http://localhost:8001/v1
+#       api_key: "not-needed"
 #     coding:
 #       provider: fireworks_ai
 #       model: accounts/fireworks/models/kimi-k2p7-code
@@ -38,10 +38,10 @@ default_agent: rune
 #       escalate_to: reasoning
 #     compaction: {default: daily, escalate_to: coding}
 
-# Get your API key at https://brave.com/search/api/
+# Get your API key at https://firecrawl.dev
 # websearch:
-#   provider: brave
-#   api_key: ${BRAVE_API_KEY}
+#   provider: firecrawl
+#   api_key: ${FIRECRAWL_API_KEY}
 
 # webread:
 #   provider: crawl4ai

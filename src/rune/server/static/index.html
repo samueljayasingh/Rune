@@ -3,139 +3,339 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rune</title>
+<title>rune.</title>
 <style>
   :root {
-    --bg: #0b0b0d;
-    --panel: #131315;
-    --panel-2: #1a1a1d;
-    --border: #262629;
-    --text: #e8e6e3;
-    --text-dim: #8a8a8e;
-    --red: #ef3d3d;
-    --red-dim: #7a2323;
-    --green: #3ddc84;
+    --bg: #17150f;
+    --panel: #1d1a13;
+    --panel-2: #242016;
+    --border: #3c3626;
+    --text: #ece5d3;
+    --text-dim: #8e8570;
+    --ember: #c9552e;
+    --ember-dim: #4a2818;
+    --moss: #8a9569;
+    --amber: #c9973f;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; height: 100%; background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: var(--sans); font-size: 13.5px;
   }
-  .app {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    height: 100vh;
-  }
-  @media (max-width: 800px) {
-    .app { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  .hidden { display: none !important; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* subtle carved-paper texture so flat panels don't read as generic flat UI */
+  body {
+    background-image:
+      radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 3px 3px;
   }
 
-  /* Chat column */
-  .chat-col { display: flex; flex-direction: column; min-width: 0; }
-  header {
-    padding: 18px 24px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-  header .mark {
-    width: 10px; height: 10px; border-radius: 50%; background: var(--red);
-    box-shadow: 0 0 12px var(--red);
-  }
-  header h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: 0.02em; }
-  header span { color: var(--text-dim); font-size: 12px; margin-left: 4px; }
+  /* ---------- shell ---------- */
+  .shell { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
 
-  .messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
-  .msg { max-width: 72%; padding: 10px 14px; border-radius: 10px; line-height: 1.45; font-size: 14px; }
-  .msg.user { align-self: flex-end; background: var(--red); color: #1a0505; }
+  .topbar {
+    display: flex; align-items: center; gap: 30px; padding: 0 26px; height: 62px;
+    border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  .topbar .logo { display: flex; align-items: center; gap: 10px; }
+  .topbar .logo svg { flex: none; }
+  .topbar .logo .word { font-family: var(--serif); font-size: 20px; letter-spacing: 0.01em; color: var(--text); }
+  .topbar .logo .word em { font-style: normal; color: var(--ember); }
+  .topbar nav { display: flex; gap: 26px; }
+  .topbar nav a {
+    color: var(--text-dim); text-decoration: none; font-size: 12px; letter-spacing: 0.05em;
+    cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid transparent;
+  }
+  .topbar nav a.active { color: var(--text); border-bottom-color: var(--ember); }
+  .topbar .spacer { flex: 1; }
+  .topbar .conn { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+
+  .body { display: grid; grid-template-columns: 210px 1fr; min-height: 0; }
+
+  /* ---------- sidebar ---------- */
+  .sidebar {
+    background: var(--panel); border-right: 1px solid var(--border);
+    padding: 24px 12px; display: flex; flex-direction: column; min-height: 0;
+  }
+  .sidebar .brand { font-family: var(--serif); font-size: 14px; color: var(--text); }
+  .sidebar .brand-sub { color: var(--moss); font-size: 10px; letter-spacing: 0.1em; margin: 3px 0 22px; font-family: var(--mono); }
+  .sidebar .navitem {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    color: var(--text-dim); cursor: pointer; font-size: 13px; margin-bottom: 2px;
+    border-left: 2px solid transparent;
+  }
+  .sidebar .navitem:hover { color: var(--text); background: var(--panel-2); }
+  .sidebar .navitem.active { color: var(--text); border-left-color: var(--ember); background: var(--panel-2); font-weight: 600; }
+  .sidebar .navspacer { flex: 1; }
+  .sidebar .foot { color: var(--text-dim); font-size: 10.5px; padding: 10px 12px; font-family: var(--mono); }
+
+  /* ---------- main ---------- */
+  .main { padding: 24px 26px; overflow-y: auto; min-height: 0; }
+  .view { display: grid; grid-template-columns: 1fr 310px; gap: 22px; align-items: start; }
+  .view.single { grid-template-columns: 1fr; }
+  .col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-top: 2px solid var(--ember-dim); padding: 20px;
+  }
+  .panel h2 {
+    font-family: var(--serif); font-weight: 400; font-size: 16px; color: var(--text);
+    margin: 0 0 16px; display: flex; justify-content: space-between; align-items: baseline;
+    border-bottom: 1px solid var(--border); padding-bottom: 10px;
+  }
+  .panel h2 .count { color: var(--ember); font-size: 12px; font-family: var(--mono); font-weight: 400; }
+
+  .card {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--panel-2); border: 1px solid var(--border);
+    padding: 12px 16px; margin-bottom: 8px;
+  }
+  .card:last-child { margin-bottom: 0; }
+  .card .name { font-weight: 600; }
+  .card .task { color: var(--text-dim); font-size: 11.5px; margin-top: 3px; font-family: var(--mono); }
+  .card .right { text-align: right; font-size: 11.5px; color: var(--text-dim); }
+
+  .pill {
+    font-size: 10px; padding: 1px 7px; margin-left: 10px; font-family: var(--mono);
+    border: 1px solid currentColor; letter-spacing: 0.03em;
+  }
+  .pill.running { color: var(--moss); }
+  .pill.idle { color: var(--text-dim); }
+  .pill.error { color: var(--amber); }
+
+  .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--text-dim); }
+  .stat-label .v { color: var(--ember); font-family: var(--mono); }
+  .bar-track { height: 4px; background: var(--panel-2); overflow: hidden; margin-bottom: 18px; }
+  .bar-track > div { height: 100%; background: var(--ember); }
+
+  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-bottom: 4px; }
+  .sparkline > div { flex: 1; background: var(--ember-dim); }
+  .sparkline > div.hi { background: var(--ember); }
+
+  .cron-card { background: var(--panel-2); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 8px; }
+  .cron-card:last-child { margin-bottom: 0; }
+  .cron-card .row { display: flex; justify-content: space-between; font-weight: 600; font-size: 12.5px; }
+  .cron-card .row .in { color: var(--ember); font-family: var(--mono); font-weight: 400; }
+  .cron-card .desc { color: var(--text-dim); font-size: 11.5px; margin-top: 4px; }
+
+  .terminal {
+    background: #0c0b08; border: 1px solid var(--border); margin-top: 20px;
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  .terminal .term-head {
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--text-dim); font-family: var(--mono);
+  }
+  .terminal .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ember); }
+  .terminal .term-head .spacer { flex: 1; }
+  .term-body { padding: 14px 16px; overflow-y: auto; max-height: 340px; font-size: 11.5px; line-height: 1.7; font-family: var(--mono); }
+  .term-body .line { white-space: pre-wrap; word-break: break-word; }
+  .term-body .time { color: var(--text-dim); }
+  .term-body .lvl-INFO { color: var(--ember); }
+  .term-body .lvl-WARNING { color: var(--amber); }
+  .term-body .lvl-ERROR { color: var(--amber); font-weight: 700; }
+  .term-body .lvl-DEBUG { color: var(--text-dim); }
+
+  .kv-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-row .v { color: var(--text-dim); font-family: var(--mono); }
+
+  /* nodes / balancer tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .tile { background: var(--panel-2); border: 1px solid var(--border); border-top: 2px solid var(--ember-dim); padding: 16px; }
+  .tile .tile-name { font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:8px; }
+  .tile .tile-model { color: var(--text-dim); font-size: 11px; word-break: break-all; margin-bottom: 8px; font-family: var(--mono); }
+  .badge { font-size: 9.5px; padding: 1px 6px; letter-spacing: 0.04em; border: 1px solid currentColor; font-family: var(--mono); }
+  .badge.fireworks { color: var(--ember); }
+  .badge.local { color: var(--moss); }
+
+  .role-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; margin-bottom: 12px; font-family: var(--mono); }
+  .role-flow .chip { background: var(--panel-2); border: 1px solid var(--border); padding: 4px 10px; }
+  .role-flow .arrow { color: var(--text-dim); }
+
+  /* chat view */
+  .chat-messages { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; margin-bottom: 16px; }
+  .msg { max-width: 75%; padding: 10px 14px; font-size: 13px; line-height: 1.55; }
+  .msg.user { align-self: flex-end; background: var(--ember); color: #1c0d06; }
   .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--border); }
-  .msg.system { align-self: center; color: var(--text-dim); font-size: 12px; background: none; }
-
-  .composer {
-    border-top: 1px solid var(--border); padding: 16px 24px;
-    display: flex; gap: 10px;
-  }
+  .msg.system { align-self: center; color: var(--text-dim); font-size: 11px; font-family: var(--mono); }
+  .composer { display: flex; gap: 10px; }
   .composer input {
-    flex: 1; background: var(--panel-2); border: 1px solid var(--border);
-    color: var(--text); padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;
+    flex: 1; background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 11px 13px; font-size: 13px; outline: none; font-family: var(--sans);
   }
-  .composer input:focus { border-color: var(--red-dim); }
-  .composer button {
-    background: var(--red); color: #1a0505; border: none; padding: 0 20px;
-    border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;
+  .composer input:focus { border-color: var(--ember-dim); }
+  .composer button { background: var(--ember); color: #1c0d06; border: none; padding: 0 20px; font-weight: 600; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .body { grid-template-columns: 56px 1fr; }
+    .sidebar .label, .sidebar .brand, .sidebar .brand-sub, .sidebar .foot { display: none; }
+    .view { grid-template-columns: 1fr; }
   }
-  .composer button:disabled { opacity: 0.4; cursor: default; }
-
-  /* Metrics sidebar */
-  .side {
-    background: var(--panel); border-left: 1px solid var(--border);
-    padding: 24px 20px; display: flex; flex-direction: column; gap: 22px; overflow-y: auto;
-  }
-  .side h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin: 0 0 10px; }
-
-  .meter-card {
-    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
-  }
-  .meter-bar { height: 10px; border-radius: 6px; background: var(--red-dim); overflow: hidden; margin: 10px 0 6px; }
-  .meter-bar > div { height: 100%; background: var(--green); transition: width 0.4s ease; }
-  .meter-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); }
-  .big-num { font-size: 28px; font-weight: 700; }
-  .big-num .unit { font-size: 13px; color: var(--text-dim); font-weight: 400; margin-left: 4px; }
-
-  .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .stat-row:last-child { border-bottom: none; }
-  .stat-row .v { color: var(--text-dim); }
-
-  .tier-bar-row { margin-bottom: 10px; }
-  .tier-bar-row .tier-label { font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; }
-  .tier-track { height: 6px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
-  .tier-track > div { height: 100%; background: var(--red); }
-
-  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
-  .dot.ok { background: var(--green); }
-  .dot.off { background: var(--text-dim); }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="chat-col">
-    <header>
-      <div class="mark"></div>
-      <h1>RUNE</h1>
-      <span id="conn-status">connecting…</span>
-    </header>
-    <div class="messages" id="messages">
-      <div class="msg system">Say hello to start.</div>
+<div class="shell">
+  <div class="topbar">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2 L12 22 M6 7 L18 7 M6 17 L18 17 M12 2 L6 7 M12 2 L18 7" stroke="#c9552e" stroke-width="1.6" stroke-linecap="square"/>
+      </svg>
+      <span class="word">rune<em>.</em></span>
     </div>
-    <div class="composer">
-      <input id="input" type="text" placeholder="Message Rune…" autocomplete="off">
-      <button id="send">Send</button>
-    </div>
+    <nav>
+      <a data-topnav="dashboard" class="active">Dashboard</a>
+      <a data-topnav="nodes">Nodes</a>
+      <a data-topnav="balancer">Balancer</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="conn" id="conn-status">connecting…</div>
   </div>
 
-  <div class="side">
-    <div>
-      <h2>Token Routing</h2>
-      <div class="meter-card">
-        <div class="big-num" id="percent-local">0<span class="unit">% served free</span></div>
-        <div class="meter-bar"><div id="meter-fill" style="width:0%"></div></div>
-        <div class="meter-label"><span id="saved-label">0 saved</span><span id="fireworks-label">0 on Fireworks</span></div>
+  <div class="body">
+    <div class="sidebar">
+      <div class="brand">Runtime</div>
+      <div class="brand-sub">status · active</div>
+      <div class="navitem active" data-side="agents"><span class="label">Agents</span></div>
+      <div class="navitem" data-side="skills"><span class="label">Skills</span></div>
+      <div class="navitem" data-side="memory"><span class="label">Memory</span></div>
+      <div class="navitem" data-side="logs"><span class="label">Logs</span></div>
+      <div class="navitem" data-side="settings"><span class="label">Settings</span></div>
+      <div class="navitem" data-side="chat"><span class="label">Chat</span></div>
+      <div class="navspacer"></div>
+      <div class="foot">rune v0.1.0</div>
+    </div>
+
+    <div class="main">
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard">
+        <div id="side-agents" class="view">
+          <div class="col">
+            <div class="panel">
+              <h2>Active processes <span class="count" id="worker-count">0</span></h2>
+              <div id="worker-list"></div>
+            </div>
+            <div class="terminal">
+              <div class="term-head"><div class="dot"></div>runtime log<div class="spacer"></div><span id="log-count">0 lines</span></div>
+              <div class="term-body" id="term-body"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="panel">
+              <h2>System</h2>
+              <div class="stat-label"><span>cpu</span><span class="v" id="cpu-val">0%</span></div>
+              <div class="bar-track"><div id="cpu-bar" style="width:0%"></div></div>
+              <div class="stat-label"><span>memory</span><span class="v" id="mem-val">0 / 0 GB</span></div>
+              <div class="bar-track"><div id="mem-bar" style="width:0%"></div></div>
+              <div class="stat-label"><span>api latency</span><span class="v" id="latency-val">0ms</span></div>
+              <div class="sparkline" id="sparkline"></div>
+            </div>
+            <div class="panel">
+              <h2>Scheduled</h2>
+              <div id="cron-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="side-skills" class="view single hidden">
+          <div class="panel">
+            <h2>Skills <span class="count" id="skills-count">0</span></h2>
+            <div id="skills-list"></div>
+          </div>
+        </div>
+
+        <div id="side-memory" class="view single hidden">
+          <div class="panel">
+            <h2>Memory axes</h2>
+            <div class="tiles" id="memory-tiles"></div>
+          </div>
+        </div>
+
+        <div id="side-logs" class="view single hidden">
+          <div class="terminal" style="margin-top:0;">
+            <div class="term-head"><div class="dot"></div>full log<div class="spacer"></div></div>
+            <div class="term-body" id="term-body-full" style="max-height:70vh;"></div>
+          </div>
+        </div>
+
+        <div id="side-settings" class="view single hidden">
+          <div class="panel">
+            <h2>Runtime config</h2>
+            <div id="settings-list"></div>
+          </div>
+        </div>
+
+        <div id="side-chat" class="view single hidden">
+          <div class="panel">
+            <h2>Chat</h2>
+            <div class="chat-messages" id="messages"><div class="msg system">Say hello to start.</div></div>
+            <div class="composer">
+              <input id="input" type="text" placeholder="Message Rune…" autocomplete="off">
+              <button id="send">Send</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <h2>Calls by Tier</h2>
-      <div id="tier-bars"></div>
-    </div>
+      <!-- NODES TAB -->
+      <div id="tab-nodes" class="hidden">
+        <div class="panel">
+          <h2>Model tiers</h2>
+          <div class="tiles" id="nodes-tiles"></div>
+        </div>
+      </div>
 
-    <div>
-      <h2>Session</h2>
-      <div class="stat-row"><span>Successful calls</span><span class="v" id="calls-success">0</span></div>
-      <div class="stat-row"><span>Failed / escalated</span><span class="v" id="calls-error">0</span></div>
+      <!-- BALANCER TAB -->
+      <div id="tab-balancer" class="hidden">
+        <div class="view">
+          <div class="col">
+            <div class="panel">
+              <h2>Routing policy</h2>
+              <div id="policy-list"></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="panel">
+              <div style="font-family:var(--serif);font-size:30px;" id="percent-local">0<span style="font-size:12px;color:var(--text-dim);font-family:var(--sans);"> % served free</span></div>
+              <div class="bar-track" style="margin-top:12px;"><div id="meter-fill" style="width:0%;background:var(--moss);"></div></div>
+              <div class="stat-label"><span id="saved-label">0 saved</span><span id="fireworks-label">0 on Fireworks</span></div>
+            </div>
+            <div class="panel">
+              <h2>Calls by tier</h2>
+              <div id="tier-bars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 const clientId = "web-" + Math.random().toString(36).slice(2, 10);
+
+/* ---------- nav ---------- */
+document.querySelectorAll("[data-topnav]").forEach(el => el.addEventListener("click", () => {
+  document.querySelectorAll("[data-topnav]").forEach(a => a.classList.remove("active"));
+  el.classList.add("active");
+  ["dashboard", "nodes", "balancer"].forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== el.dataset.topnav));
+}));
+
+document.querySelectorAll("[data-side]").forEach(el => el.addEventListener("click", () => {
+  document.querySelectorAll("[data-side]").forEach(a => a.classList.remove("active"));
+  el.classList.add("active");
+  ["agents", "skills", "memory", "logs", "settings", "chat"].forEach(s =>
+    document.getElementById("side-" + s).classList.toggle("hidden", s !== el.dataset.side));
+}));
+
+/* ---------- chat (WebSocket) ---------- */
 const messagesEl = document.getElementById("messages");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
@@ -151,23 +351,15 @@ function addMessage(role, text) {
 
 const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
 const ws = new WebSocket(wsProto + "//" + location.host + "/ws");
-
-ws.onopen = () => { connStatus.textContent = ""; connStatus.innerHTML = '<span class="dot ok"></span>connected'; };
-ws.onclose = () => { connStatus.innerHTML = '<span class="dot off"></span>disconnected'; };
-ws.onerror = () => { connStatus.innerHTML = '<span class="dot off"></span>error'; };
-
+ws.onopen = () => connStatus.textContent = "● connected";
+ws.onclose = () => connStatus.textContent = "○ disconnected";
+ws.onerror = () => connStatus.textContent = "○ error";
 ws.onmessage = (evt) => {
   let data;
   try { data = JSON.parse(evt.data); } catch { return; }
-  if (data.type === "OutboundEvent") {
-    addMessage("agent", data.content);
-    sendBtn.disabled = false;
-  } else if (data.type === "error") {
-    addMessage("system", data.message || "error");
-    sendBtn.disabled = false;
-  }
+  if (data.type === "OutboundEvent") { addMessage("agent", data.content); sendBtn.disabled = false; }
+  else if (data.type === "error") { addMessage("system", data.message || "error"); sendBtn.disabled = false; }
 };
-
 function send() {
   const text = input.value.trim();
   if (!text || ws.readyState !== WebSocket.OPEN) return;
@@ -176,10 +368,10 @@ function send() {
   input.value = "";
   sendBtn.disabled = true;
 }
-
 sendBtn.addEventListener("click", send);
 input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
 
+/* ---------- dashboard polling ---------- */
 function fmt(n) {
   n = Math.round(n);
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
@@ -187,35 +379,161 @@ function fmt(n) {
   return String(n);
 }
 
-async function pollMetrics() {
-  try {
-    const res = await fetch("/metrics/summary");
-    const m = await res.json();
-
-    document.getElementById("percent-local").innerHTML = m.percent_local + '<span class="unit">% served free</span>';
-    document.getElementById("meter-fill").style.width = m.percent_local + "%";
-    document.getElementById("saved-label").textContent = fmt(m.saved_tokens) + " saved";
-    document.getElementById("fireworks-label").textContent = fmt(m.fireworks_tokens) + " on Fireworks";
-    document.getElementById("calls-success").textContent = fmt(m.calls_success);
-    document.getElementById("calls-error").textContent = fmt(m.calls_error);
-
-    const tierBars = document.getElementById("tier-bars");
-    tierBars.innerHTML = "";
-    const entries = Object.entries(m.calls_by_tier || {});
-    const max = Math.max(1, ...entries.map(([, v]) => v));
-    for (const [tier, count] of entries) {
-      const row = document.createElement("div");
-      row.className = "tier-bar-row";
-      row.innerHTML = `
-        <div class="tier-label"><span>${tier}</span><span>${fmt(count)}</span></div>
-        <div class="tier-track"><div style="width:${(count / max) * 100}%"></div></div>`;
-      tierBars.appendChild(row);
-    }
-  } catch (e) { /* server not up yet */ }
+function renderWorkers(workers) {
+  document.getElementById("worker-count").textContent = String(workers.length).padStart(2, "0");
+  const list = document.getElementById("worker-list");
+  list.innerHTML = "";
+  for (const w of workers) {
+    const pillClass = w.status === "RUNNING" ? "running" : (w.status === "ERROR" ? "error" : "idle");
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div>
+        <div class="name">${w.name}<span class="pill ${pillClass}">${w.status.toLowerCase()}</span></div>
+        <div class="task">uptime ${w.uptime}</div>
+      </div>`;
+    list.appendChild(div);
+  }
 }
 
-pollMetrics();
-setInterval(pollMetrics, 2000);
+function renderLogsInto(el, logs) {
+  el.innerHTML = "";
+  for (const l of logs) {
+    const div = document.createElement("div");
+    div.className = "line";
+    const lvl = l.level || "";
+    div.innerHTML = `<span class="time">[${l.time || ""}]</span> <span class="lvl-${lvl}">${lvl}</span> ${l.source || ""}: ${l.message}`;
+    el.appendChild(div);
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderCrons(crons) {
+  const list = document.getElementById("cron-list");
+  list.innerHTML = crons.length ? "" : '<div style="color:var(--text-dim);font-size:12px;">No scheduled crons.</div>';
+  for (const c of crons) {
+    const div = document.createElement("div");
+    div.className = "cron-card";
+    div.innerHTML = `<div class="row"><span>${c.name}</span><span class="in">in ${c.next_in}</span></div><div class="desc">${c.description}</div>`;
+    list.appendChild(div);
+  }
+}
+
+function renderSkills(skills) {
+  document.getElementById("skills-count").textContent = skills.length;
+  const list = document.getElementById("skills-list");
+  list.innerHTML = "";
+  for (const s of skills) {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<div><div class="name">${s.name}</div><div class="task">${s.description}</div></div>`;
+    list.appendChild(div);
+  }
+}
+
+function renderMemory(memories) {
+  const tiles = document.getElementById("memory-tiles");
+  tiles.innerHTML = "";
+  for (const [axis, data] of Object.entries(memories)) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.innerHTML = `<div class="tile-name">${axis}</div><div class="tile-model">${data.count} files</div><div class="tile-model">${(data.recent || []).join(", ") || "—"}</div>`;
+    tiles.appendChild(tile);
+  }
+}
+
+function renderSettings(agents) {
+  const list = document.getElementById("settings-list");
+  list.innerHTML = "";
+  for (const a of agents) {
+    const row = document.createElement("div");
+    row.className = "kv-row";
+    row.innerHTML = `<span>${a.id} (${a.name})</span><span class="v">${a.model}</span>`;
+    list.appendChild(row);
+  }
+}
+
+function renderNodes(nodes) {
+  const tiles = document.getElementById("nodes-tiles");
+  tiles.innerHTML = "";
+  for (const [name, tier] of Object.entries(nodes.tiers || {})) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    const badge = tier.billed ? '<span class="badge fireworks">fireworks</span>' : '<span class="badge local">local</span>';
+    tile.innerHTML = `<div class="tile-name">${name} ${badge}</div><div class="tile-model">${tier.model}</div><div class="tile-model">tools: ${tier.supports_tools ? "yes" : "no"}</div>`;
+    tiles.appendChild(tile);
+  }
+}
+
+function renderBalancer(balancer) {
+  const list = document.getElementById("policy-list");
+  list.innerHTML = "";
+  for (const [role, policy] of Object.entries(balancer.roles || {})) {
+    const div = document.createElement("div");
+    div.className = "role-flow";
+    let html = `<span class="chip">${role}</span><span class="arrow">→</span><span class="chip">${policy.default}</span>`;
+    if (policy.escalate_to) html += `<span class="arrow">⇡ on fail</span><span class="chip">${policy.escalate_to}</span>`;
+    if (policy.classify) html += `<span class="arrow">classify:</span>` + Object.entries(policy.categories).map(([k, v]) => `<span class="chip">${k}→${v}</span>`).join("");
+    div.innerHTML = html;
+    list.appendChild(div);
+  }
+
+  const m = balancer.live || {};
+  document.getElementById("percent-local").innerHTML = (m.percent_local || 0) + '<span style="font-size:12px;color:var(--text-dim);font-family:var(--sans);"> % served free</span>';
+  document.getElementById("meter-fill").style.width = (m.percent_local || 0) + "%";
+  document.getElementById("saved-label").textContent = fmt(m.saved_tokens || 0) + " saved";
+  document.getElementById("fireworks-label").textContent = fmt(m.fireworks_tokens || 0) + " on Fireworks";
+
+  const tierBars = document.getElementById("tier-bars");
+  tierBars.innerHTML = "";
+  const entries = Object.entries(m.calls_by_tier || {});
+  const max = Math.max(1, ...entries.map(([, v]) => v));
+  for (const [tier, count] of entries) {
+    const row = document.createElement("div");
+    row.style.marginBottom = "10px";
+    row.innerHTML = `<div class="stat-label"><span>${tier}</span><span class="v">${fmt(count)}</span></div><div class="bar-track" style="margin-bottom:0;"><div style="width:${(count / max) * 100}%"></div></div>`;
+    tierBars.appendChild(row);
+  }
+}
+
+async function pollDashboard() {
+  try {
+    const res = await fetch("/api/dashboard");
+    const d = await res.json();
+
+    renderWorkers(d.workers);
+    renderLogsInto(document.getElementById("term-body"), d.logs.slice(-20));
+    renderLogsInto(document.getElementById("term-body-full"), d.logs);
+    document.getElementById("log-count").textContent = d.logs.length + " lines";
+    renderCrons(d.crons);
+    renderSkills(d.skills);
+    renderMemory(d.memories);
+    renderSettings(d.agents);
+    renderNodes(d.nodes);
+    renderBalancer(d.balancer);
+
+    const sys = d.system;
+    document.getElementById("cpu-val").textContent = sys.cpu_percent + "%";
+    document.getElementById("cpu-bar").style.width = sys.cpu_percent + "%";
+    document.getElementById("mem-val").textContent = sys.memory_used_gb + " / " + sys.memory_total_gb + " GB";
+    document.getElementById("mem-bar").style.width = Math.min(100, (sys.memory_used_gb / sys.memory_total_gb) * 100) + "%";
+    document.getElementById("latency-val").textContent = sys.api_latency_ms + "ms";
+
+    const spark = document.getElementById("sparkline");
+    spark.innerHTML = "";
+    const samples = sys.api_latency_samples.length ? sys.api_latency_samples : [0];
+    const maxL = Math.max(1, ...samples);
+    for (const v of samples) {
+      const bar = document.createElement("div");
+      bar.style.height = Math.max(4, (v / maxL) * 100) + "%";
+      if (v === maxL) bar.className = "hi";
+      spark.appendChild(bar);
+    }
+  } catch (e) { /* server warming up */ }
+}
+
+pollDashboard();
+setInterval(pollDashboard, 2500);
 </script>
 </body>
 </html>
