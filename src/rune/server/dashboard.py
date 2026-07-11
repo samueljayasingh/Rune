@@ -1,5 +1,6 @@
 """Real data for the ops dashboard UI: agents, workers, crons, system health, logs."""
 
+import os
 import re
 import time
 from pathlib import Path
@@ -7,11 +8,33 @@ from typing import TYPE_CHECKING
 
 import psutil
 from croniter import croniter
+from dotenv import find_dotenv, set_key
 
 from rune.observability import metrics as metrics_module
 
 if TYPE_CHECKING:
     from rune.core.context import SharedContext
+
+# Only these env vars are editable from the Settings UI — a fixed whitelist,
+# not an arbitrary-key write, since this writes to a real file on disk.
+EDITABLE_ENV_VARS = [
+    "FIREWORKS_API_KEY",
+    "FIREWORKS_BASE_URL",
+    "OPENAI_API_KEY",
+    "FIRECRAWL_API_KEY",
+    "TELEGRAM_BOT_TOKEN",
+    "DISCORD_BOT_TOKEN",
+]
+
+# Tiers/roles are config-defined, not hardcoded — but writes must stay inside
+# this set of fields so a settings write can't touch arbitrary config keys.
+EDITABLE_TIER_FIELDS = ["provider", "model", "api_base", "supports_tools"]
+
+
+def _mask(value: str) -> str:
+    if len(value) <= 4:
+        return "•" * len(value)
+    return "•" * (len(value) - 4) + value[-4:]
 
 LOG_LINE_RE = re.compile(
     r"^(?P<time>\S+ \S+) - (?P<source>\S+) - (?P<level>\S+) - (?P<message>.*)$"
@@ -29,6 +52,95 @@ def _fmt_countdown(seconds: float) -> str:
     if seconds < 0:
         return "now"
     return _fmt_uptime(seconds)
+
+
+def _messages_for(context: "SharedContext", session_id: str) -> list[dict]:
+    messages = context.history_store.get_messages(session_id)
+    return [
+        {"role": m.role, "content": m.content}
+        for m in messages
+        if m.role in ("user", "assistant") and m.content.strip()
+    ]
+
+
+def chat_history(context: "SharedContext", source: str) -> list[dict]:
+    """Persisted messages for the given source's active session, for the
+    chat UI to load on open. Read-only: does not create a session if none
+    exists yet."""
+    from rune.core.events import WebSocketEventSource
+
+    source_str = str(WebSocketEventSource(user_id=source))
+    binding = context.config.sources.get(source_str)
+    if not binding:
+        return []
+
+    return _messages_for(context, binding.session_id)
+
+
+def _rebind_source(context: "SharedContext", source_str: str, session_id: str) -> None:
+    """Point source_str at session_id, both on disk and in the live config
+    object other requests read from (set_runtime alone only writes to disk)."""
+    from rune.utils.config import SourceSessionConfig
+
+    context.config.set_runtime(
+        f"sources.{source_str}", SourceSessionConfig(session_id=session_id)
+    )
+    context.config.sources[source_str] = SourceSessionConfig(session_id=session_id)
+
+
+def new_chat_session(context: "SharedContext", source: str) -> str:
+    """Start a fresh session for this source; the old one stays on disk,
+    just no longer the one new messages append to."""
+    from rune.core.agent import Agent
+    from rune.core.events import WebSocketEventSource
+
+    ws_source = WebSocketEventSource(user_id=source)
+    agent_def = context.agent_loader.load(context.config.default_agent)
+
+    session = Agent(agent_def, context).new_session(ws_source)
+    _rebind_source(context, str(ws_source), session.state.session_id)
+    return session.state.session_id
+
+
+def list_chat_sessions(context: "SharedContext", source: str) -> list[dict]:
+    """Past sessions for this source with at least one message, most recent
+    first. Sessions with zero messages (e.g. "New chat" clicked but never
+    used) are omitted — they're just clutter, not real history."""
+    from rune.core.events import WebSocketEventSource
+
+    source_str = str(WebSocketEventSource(user_id=source))
+    return [
+        {
+            "id": s.id,
+            "preview": s.title or "(untitled)",
+            "updated_at": s.updated_at,
+            "message_count": s.message_count,
+        }
+        for s in context.history_store.list_sessions()
+        if s.source == source_str and s.message_count > 0
+    ]
+
+
+def delete_chat_session(context: "SharedContext", source: str, session_id: str) -> None:
+    """Delete a past session's history. If it's the active session for this
+    source, also start a fresh one so the source isn't left pointing at a
+    session that no longer exists."""
+    from rune.core.events import WebSocketEventSource
+
+    source_str = str(WebSocketEventSource(user_id=source))
+    context.history_store.delete_session(session_id)
+
+    binding = context.config.sources.get(source_str)
+    if binding and binding.session_id == session_id:
+        new_chat_session(context, source)
+
+
+def resume_chat_session(context: "SharedContext", source: str, session_id: str) -> list[dict]:
+    """Make session_id the active one for this source and return its messages."""
+    from rune.core.events import WebSocketEventSource
+
+    _rebind_source(context, str(WebSocketEventSource(user_id=source)), session_id)
+    return _messages_for(context, session_id)
 
 
 def workers_snapshot(context: "SharedContext") -> list[dict]:
@@ -174,3 +286,62 @@ def balancer_snapshot(context: "SharedContext") -> dict:
         for name, policy in model_routing.roles.items()
     }
     return {"roles": roles, "live": metrics_module.summary()}
+
+
+def settings_snapshot(context: "SharedContext") -> dict:
+    """Editable settings: env secrets (masked) and model tier config."""
+    env = [
+        {"key": key, "set": bool(os.environ.get(key)), "masked": _mask(os.environ[key])}
+        if os.environ.get(key)
+        else {"key": key, "set": False, "masked": ""}
+        for key in EDITABLE_ENV_VARS
+    ]
+
+    llm = context.config.llm
+    tiers = {
+        name: {
+            "provider": tier.provider,
+            "model": tier.model,
+            "api_base": tier.api_base,
+            "supports_tools": tier.supports_tools,
+        }
+        for name, tier in context.config.model_routing.tiers.items()
+    }
+
+    return {
+        "env": env,
+        "llm": {
+            "provider": llm.provider,
+            "model": llm.model,
+            "api_base": llm.api_base,
+            "temperature": llm.temperature,
+            "max_tokens": llm.max_tokens,
+        },
+        "model_routing_enabled": context.config.model_routing.enabled,
+        "tiers": tiers,
+    }
+
+
+def update_env_var(key: str, value: str) -> None:
+    """Write one whitelisted env var to .env and make it live immediately
+    (config_routing already reads Fireworks creds fresh via os.environ on
+    every call, so this takes effect without a server restart)."""
+    if key not in EDITABLE_ENV_VARS:
+        raise ValueError(f"'{key}' is not an editable setting")
+
+    env_path = find_dotenv(usecwd=True) or ".env"
+    set_key(env_path, key, value)
+    os.environ[key] = value
+
+
+def update_model_tier(context: "SharedContext", tier_name: str, fields: dict) -> None:
+    """Update one model tier's config, persisted and applied live."""
+    tier = context.config.model_routing.tiers.get(tier_name)
+    if tier is None:
+        raise ValueError(f"Unknown tier: {tier_name}")
+
+    for field, value in fields.items():
+        if field not in EDITABLE_TIER_FIELDS:
+            raise ValueError(f"'{field}' is not an editable tier field")
+        setattr(tier, field, value)
+        context.config.set_user(f"model_routing.tiers.{tier_name}.{field}", value)

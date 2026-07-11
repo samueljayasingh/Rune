@@ -6,177 +6,230 @@
 <title>rune.</title>
 <style>
   :root {
-    --bg: #17150f;
-    --panel: #1d1a13;
-    --panel-2: #242016;
-    --border: #3c3626;
-    --text: #ece5d3;
-    --text-dim: #8e8570;
-    --ember: #c9552e;
-    --ember-dim: #4a2818;
-    --moss: #8a9569;
-    --amber: #c9973f;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Consolas, monospace;
+    --bg: #080807;
+    --fg: #ddddd5;
+    --dim: #6e6e68;
+    --line: #232320;
+    --accent: #ff5a36;
+    --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   html, body {
-    margin: 0; height: 100%; background: var(--bg); color: var(--text);
-    font-family: var(--sans); font-size: 13.5px;
+    margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 14px; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   .hidden { display: none !important; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: var(--border); }
-
-  /* subtle carved-paper texture so flat panels don't read as generic flat UI */
-  body {
-    background-image:
-      radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 3px 3px;
-  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); }
+  a { color: inherit; }
 
   /* ---------- shell ---------- */
   .shell { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
 
   .topbar {
-    display: flex; align-items: center; gap: 30px; padding: 0 26px; height: 62px;
-    border-bottom: 1px solid var(--border); background: var(--panel);
+    display: flex; align-items: baseline; gap: 48px; padding: 28px 48px 20px;
   }
-  .topbar .logo { display: flex; align-items: center; gap: 10px; }
-  .topbar .logo svg { flex: none; }
-  .topbar .logo .word { font-family: var(--serif); font-size: 20px; letter-spacing: 0.01em; color: var(--text); }
-  .topbar .logo .word em { font-style: normal; color: var(--ember); }
-  .topbar nav { display: flex; gap: 26px; }
+  .topbar .word { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .topbar .word .dot { color: var(--accent); }
+  .topbar nav { display: flex; gap: 34px; }
   .topbar nav a {
-    color: var(--text-dim); text-decoration: none; font-size: 12px; letter-spacing: 0.05em;
-    cursor: pointer; padding-bottom: 4px; border-bottom: 1px solid transparent;
+    color: var(--dim); text-decoration: none; font-size: 13px; letter-spacing: 0.02em;
+    cursor: pointer; transition: color 0.15s ease;
   }
-  .topbar nav a.active { color: var(--text); border-bottom-color: var(--ember); }
+  .topbar nav a.active, .topbar nav a:hover { color: var(--fg); }
   .topbar .spacer { flex: 1; }
-  .topbar .conn { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+  .topbar .conn { font-size: 11px; color: var(--dim); font-family: var(--mono); }
 
-  .body { display: grid; grid-template-columns: 210px 1fr; min-height: 0; }
+  .body { display: grid; grid-template-columns: 160px 1fr; min-height: 0; }
 
-  /* ---------- sidebar ---------- */
-  .sidebar {
-    background: var(--panel); border-right: 1px solid var(--border);
-    padding: 24px 12px; display: flex; flex-direction: column; min-height: 0;
-  }
-  .sidebar .brand { font-family: var(--serif); font-size: 14px; color: var(--text); }
-  .sidebar .brand-sub { color: var(--moss); font-size: 10px; letter-spacing: 0.1em; margin: 3px 0 22px; font-family: var(--mono); }
+  /* ---------- sidebar: plain text list, no chrome ---------- */
+  .sidebar { padding: 8px 48px; display: flex; flex-direction: column; min-height: 0; }
   .sidebar .navitem {
-    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
-    color: var(--text-dim); cursor: pointer; font-size: 13px; margin-bottom: 2px;
-    border-left: 2px solid transparent;
+    color: var(--dim); cursor: pointer; font-size: 13px; padding: 7px 0;
   }
-  .sidebar .navitem:hover { color: var(--text); background: var(--panel-2); }
-  .sidebar .navitem.active { color: var(--text); border-left-color: var(--ember); background: var(--panel-2); font-weight: 600; }
+  .sidebar .navitem:hover { color: var(--fg); }
+  .sidebar .navitem.active { color: var(--fg); font-weight: 600; }
   .sidebar .navspacer { flex: 1; }
-  .sidebar .foot { color: var(--text-dim); font-size: 10.5px; padding: 10px 12px; font-family: var(--mono); }
+  .sidebar .foot { color: var(--line); font-size: 10.5px; padding: 10px 0; font-family: var(--mono); }
 
   /* ---------- main ---------- */
-  .main { padding: 24px 26px; overflow-y: auto; min-height: 0; }
-  .view { display: grid; grid-template-columns: 1fr 310px; gap: 22px; align-items: start; }
-  .view.single { grid-template-columns: 1fr; }
-  .col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .main { padding: 8px 48px 48px; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+  .view { display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
+  .view.single { grid-template-columns: 1fr; max-width: 780px; }
+  .view.chat-view { grid-template-columns: 1fr 320px; }
+  .col { display: flex; flex-direction: column; gap: 56px; min-width: 0; }
 
-  .panel {
-    background: var(--panel); border: 1px solid var(--border);
-    border-top: 2px solid var(--ember-dim); padding: 20px;
+  .cmd-list { display: flex; flex-direction: column; gap: 8px; }
+  .cmd-chip {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+    background: none; border: 1px solid var(--line); color: var(--fg);
+    font-family: var(--mono); font-size: 12.5px; padding: 10px 14px;
+    cursor: pointer; text-align: left; width: 100%; transition: border-color 0.15s ease;
   }
-  .panel h2 {
-    font-family: var(--serif); font-weight: 400; font-size: 16px; color: var(--text);
-    margin: 0 0 16px; display: flex; justify-content: space-between; align-items: baseline;
-    border-bottom: 1px solid var(--border); padding-bottom: 10px;
-  }
-  .panel h2 .count { color: var(--ember); font-size: 12px; font-family: var(--mono); font-weight: 400; }
+  .cmd-chip:hover { border-color: var(--accent); }
+  .cmd-chip span { color: var(--dim); font-family: var(--sans); font-size: 11px; }
 
-  .card {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--panel-2); border: 1px solid var(--border);
-    padding: 12px 16px; margin-bottom: 8px;
+  h1.section {
+    font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 22px;
+    display: flex; justify-content: space-between; align-items: baseline;
   }
-  .card:last-child { margin-bottom: 0; }
-  .card .name { font-weight: 600; }
-  .card .task { color: var(--text-dim); font-size: 11.5px; margin-top: 3px; font-family: var(--mono); }
-  .card .right { text-align: right; font-size: 11.5px; color: var(--text-dim); }
+  h1.section .count { color: var(--dim); font-size: 14px; font-family: var(--mono); font-weight: 400; }
+  .new-chat-btn {
+    background: none; border: 1px solid var(--line); color: var(--dim);
+    font-family: var(--mono); font-size: 12px; padding: 6px 14px; cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .new-chat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .session-chip {
+    flex-direction: row !important; align-items: center !important; justify-content: space-between;
+    cursor: default;
+  }
+  .session-chip.active { border-color: var(--accent); }
+  .session-main { display: flex; flex-direction: column; cursor: pointer; min-width: 0; flex: 1; }
+  .session-main .meta { color: var(--dim); font-family: var(--sans); font-size: 10.5px; margin-top: 2px; }
+  .session-delete {
+    background: none; border: none; color: var(--dim); font-size: 13px; cursor: pointer;
+    padding: 2px 6px; margin-left: 8px; flex: none;
+  }
+  .session-delete:hover { color: var(--accent); }
+
+  .row-item {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .row-item:first-child { border-top: 1px solid var(--line); }
+  .row-item .name { font-weight: 600; font-size: 14.5px; }
+  .row-item .task { color: var(--dim); font-size: 12px; margin-top: 3px; font-family: var(--mono); }
+  .row-item .right { text-align: right; font-size: 12px; color: var(--dim); font-family: var(--mono); white-space: nowrap; padding-left: 20px; }
 
   .pill {
     font-size: 10px; padding: 1px 7px; margin-left: 10px; font-family: var(--mono);
-    border: 1px solid currentColor; letter-spacing: 0.03em;
+    letter-spacing: 0.03em; border: 1px solid currentColor; vertical-align: middle;
   }
-  .pill.running { color: var(--moss); }
-  .pill.idle { color: var(--text-dim); }
-  .pill.error { color: var(--amber); }
+  .pill.running { color: var(--accent); }
+  .pill.idle { color: var(--dim); }
+  .pill.error { color: var(--accent); }
 
-  .stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--text-dim); }
-  .stat-label .v { color: var(--ember); font-family: var(--mono); }
-  .bar-track { height: 4px; background: var(--panel-2); overflow: hidden; margin-bottom: 18px; }
-  .bar-track > div { height: 100%; background: var(--ember); }
+  .stat-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 8px; color: var(--dim); }
+  .stat-label .v { color: var(--fg); font-family: var(--mono); }
+  .bar-track { height: 2px; background: var(--line); overflow: hidden; margin-bottom: 26px; }
+  .bar-track > div { height: 100%; background: var(--accent); }
 
-  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-bottom: 4px; }
-  .sparkline > div { flex: 1; background: var(--ember-dim); }
-  .sparkline > div.hi { background: var(--ember); }
+  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 32px; margin-bottom: 4px; }
+  .sparkline > div { flex: 1; background: var(--line); }
+  .sparkline > div.hi { background: var(--accent); }
 
-  .cron-card { background: var(--panel-2); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 8px; }
-  .cron-card:last-child { margin-bottom: 0; }
-  .cron-card .row { display: flex; justify-content: space-between; font-weight: 600; font-size: 12.5px; }
-  .cron-card .row .in { color: var(--ember); font-family: var(--mono); font-weight: 400; }
-  .cron-card .desc { color: var(--text-dim); font-size: 11.5px; margin-top: 4px; }
+  .cron-row { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .cron-row:first-child { border-top: 1px solid var(--line); }
+  .cron-row .row { display: flex; justify-content: space-between; font-weight: 600; font-size: 13.5px; }
+  .cron-row .row .in { color: var(--accent); font-family: var(--mono); font-weight: 400; font-size: 12px; }
+  .cron-row .desc { color: var(--dim); font-size: 12px; margin-top: 4px; }
 
-  .terminal {
-    background: #0c0b08; border: 1px solid var(--border); margin-top: 20px;
-    display: flex; flex-direction: column; min-height: 0;
-  }
+  .terminal { margin-top: 12px; }
   .terminal .term-head {
-    display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border);
-    font-size: 11px; color: var(--text-dim); font-family: var(--mono);
+    display: flex; align-items: center; gap: 10px; padding-bottom: 10px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--line); font-size: 11px; color: var(--dim); font-family: var(--mono);
   }
-  .terminal .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ember); }
+  .terminal .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
   .terminal .term-head .spacer { flex: 1; }
-  .term-body { padding: 14px 16px; overflow-y: auto; max-height: 340px; font-size: 11.5px; line-height: 1.7; font-family: var(--mono); }
-  .term-body .line { white-space: pre-wrap; word-break: break-word; }
-  .term-body .time { color: var(--text-dim); }
-  .term-body .lvl-INFO { color: var(--ember); }
-  .term-body .lvl-WARNING { color: var(--amber); }
-  .term-body .lvl-ERROR { color: var(--amber); font-weight: 700; }
-  .term-body .lvl-DEBUG { color: var(--text-dim); }
+  .term-body { overflow-y: auto; max-height: 320px; font-size: 11.5px; line-height: 1.8; font-family: var(--mono); }
+  .term-body .line { white-space: pre-wrap; word-break: break-word; opacity: 0.85; }
+  .term-body .time { color: var(--dim); }
+  .term-body .lvl-INFO { color: var(--accent); }
+  .term-body .lvl-WARNING { color: var(--accent); }
+  .term-body .lvl-ERROR { color: var(--accent); font-weight: 700; }
+  .term-body .lvl-DEBUG { color: var(--dim); }
 
-  .kv-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
-  .kv-row:last-child { border-bottom: none; }
-  .kv-row .v { color: var(--text-dim); font-family: var(--mono); }
+  .kv-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .kv-row:first-child { border-top: 1px solid var(--line); }
+  .kv-row .v { color: var(--dim); font-family: var(--mono); font-size: 12px; }
 
-  /* nodes / balancer tiles */
-  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-  .tile { background: var(--panel-2); border: 1px solid var(--border); border-top: 2px solid var(--ember-dim); padding: 16px; }
-  .tile .tile-name { font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:8px; }
-  .tile .tile-model { color: var(--text-dim); font-size: 11px; word-break: break-all; margin-bottom: 8px; font-family: var(--mono); }
+  .settings-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .settings-row:first-child { border-top: 1px solid var(--line); }
+  .settings-row label { width: 150px; flex: none; font-size: 12.5px; color: var(--dim); font-family: var(--mono); }
+  .settings-row input[type="text"], .settings-row input[type="password"] {
+    flex: 1; min-width: 160px; background: var(--bg); border: 1px solid var(--line); color: var(--fg);
+    padding: 8px 10px; font-size: 12.5px; font-family: var(--mono); outline: none;
+  }
+  .settings-row input:focus { border-color: var(--accent); }
+  .settings-row .save-btn {
+    background: none; border: 1px solid var(--line); color: var(--dim); font-family: var(--mono);
+    font-size: 11.5px; padding: 8px 14px; cursor: pointer; flex: none;
+  }
+  .settings-row .save-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .settings-row .status { font-size: 10.5px; color: var(--dim); flex: none; width: 100%; margin-top: -4px; }
+  .settings-row .status.ok { color: #6fae7f; }
+  .settings-row .tools-check { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); flex: none; }
+
+  /* nodes / balancer */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: var(--line); }
+  .tile { background: var(--bg); padding: 22px; }
+  .tile .tile-name { font-weight: 700; font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .tile .tile-model { color: var(--dim); font-size: 11.5px; word-break: break-all; margin-bottom: 6px; font-family: var(--mono); }
   .badge { font-size: 9.5px; padding: 1px 6px; letter-spacing: 0.04em; border: 1px solid currentColor; font-family: var(--mono); }
-  .badge.fireworks { color: var(--ember); }
-  .badge.local { color: var(--moss); }
+  .badge.fireworks { color: var(--accent); }
+  .badge.local { color: var(--dim); }
 
-  .role-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; margin-bottom: 12px; font-family: var(--mono); }
-  .role-flow .chip { background: var(--panel-2); border: 1px solid var(--border); padding: 4px 10px; }
-  .role-flow .arrow { color: var(--text-dim); }
+  .role-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; padding: 16px 0; border-bottom: 1px solid var(--line); font-family: var(--mono); }
+  .role-flow:first-child { border-top: 1px solid var(--line); }
+  .role-flow .chip { color: var(--fg); }
+  .role-flow .arrow { color: var(--dim); }
+
+  .meter-num { font-size: 56px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .meter-num .unit { font-size: 13px; color: var(--dim); font-family: var(--sans); font-weight: 400; margin-left: 8px; }
 
   /* chat view */
-  .chat-messages { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; margin-bottom: 16px; }
-  .msg { max-width: 75%; padding: 10px 14px; font-size: 13px; line-height: 1.55; }
-  .msg.user { align-self: flex-end; background: var(--ember); color: #1c0d06; }
-  .msg.agent { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--border); }
-  .msg.system { align-self: center; color: var(--text-dim); font-size: 11px; font-family: var(--mono); }
-  .composer { display: flex; gap: 10px; }
-  .composer input {
-    flex: 1; background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
-    padding: 11px 13px; font-size: 13px; outline: none; font-family: var(--sans);
+  .chat-col { display: flex; flex-direction: column; height: calc(100vh - 140px); min-height: 0; min-width: 0; }
+  .chat-col > h1.section { flex: none; }
+  .chat-messages { display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; margin-bottom: 24px; padding-top: 8px; }
+  .msg-row { display: flex; gap: 12px; max-width: 85%; min-width: 0; }
+  .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-row.system { align-self: center; max-width: 100%; }
+  .avatar {
+    flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; font-weight: 700; border: 1px solid var(--line); margin-top: 2px;
   }
-  .composer input:focus { border-color: var(--ember-dim); }
-  .composer button { background: var(--ember); color: #1c0d06; border: none; padding: 0 20px; font-weight: 600; cursor: pointer; }
+  .avatar.agent { color: var(--accent); border-color: var(--accent); }
+  .avatar.user { color: var(--fg); }
+  .msg { padding: 4px 0; font-size: 14.5px; line-height: 1.55; min-width: 0; }
+  .msg.user { text-align: right; font-weight: 600; }
+  .msg.agent { color: var(--fg); }
+  .msg.system { color: var(--dim); font-size: 11.5px; font-family: var(--mono); }
+  .msg p { margin: 0 0 10px; }
+  .msg p:last-child { margin-bottom: 0; }
+  .msg pre {
+    background: #100f0d; border: 1px solid var(--line); padding: 14px 16px; overflow-x: auto;
+    margin: 10px 0; text-align: left; border-radius: 3px;
+  }
+  .msg pre code { font-family: var(--mono); font-size: 12.5px; line-height: 1.6; color: var(--fg); white-space: pre; }
+  .msg code { font-family: var(--mono); font-size: 0.9em; background: #100f0d; padding: 1px 5px; border-radius: 3px; }
+  .msg ul, .msg ol { margin: 6px 0 10px; padding-left: 22px; text-align: left; }
+  .msg li { margin-bottom: 3px; }
+  .msg strong { font-weight: 700; }
+  .msg.user p, .msg.user ul, .msg.user ol { text-align: right; }
+  .composer { display: flex; gap: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .composer input {
+    flex: 1; background: none; border: none; color: var(--fg); border-bottom: 1px solid var(--line);
+    padding: 8px 0; font-size: 15px; outline: none; font-family: var(--sans);
+  }
+  .composer input:focus { border-bottom-color: var(--accent); }
+  .composer button {
+    background: none; color: var(--accent); border: none; padding: 0; font-weight: 700;
+    cursor: pointer; font-size: 14px; letter-spacing: 0.02em;
+  }
+  .composer button:disabled { color: var(--dim); cursor: default; }
+
+  .empty-note { color: var(--dim); font-size: 13px; line-height: 1.6; max-width: 480px; padding: 20px 0; }
+  .empty-note b { color: var(--fg); }
 
   @media (max-width: 900px) {
-    .body { grid-template-columns: 56px 1fr; }
-    .sidebar .label, .sidebar .brand, .sidebar .brand-sub, .sidebar .foot { display: none; }
+    .body { grid-template-columns: 1fr; }
+    .sidebar { display: flex; flex-direction: row; flex-wrap: wrap; gap: 18px; padding: 8px 24px 20px; }
+    .sidebar .navspacer, .sidebar .foot { display: none; }
+    .main { padding: 8px 24px 40px; }
+    .topbar { padding: 24px 24px 16px; flex-wrap: wrap; gap: 16px; }
     .view { grid-template-columns: 1fr; }
   }
 </style>
@@ -184,12 +237,7 @@
 <body>
 <div class="shell">
   <div class="topbar">
-    <div class="logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2 L12 22 M6 7 L18 7 M6 17 L18 17 M12 2 L6 7 M12 2 L18 7" stroke="#c9552e" stroke-width="1.6" stroke-linecap="square"/>
-      </svg>
-      <span class="word">rune<em>.</em></span>
-    </div>
+    <div class="word">rune<span class="dot">.</span></div>
     <nav>
       <a data-topnav="dashboard" class="active">Dashboard</a>
       <a data-topnav="nodes">Nodes</a>
@@ -201,14 +249,12 @@
 
   <div class="body">
     <div class="sidebar">
-      <div class="brand">Runtime</div>
-      <div class="brand-sub">status · active</div>
-      <div class="navitem active" data-side="agents"><span class="label">Agents</span></div>
-      <div class="navitem" data-side="skills"><span class="label">Skills</span></div>
-      <div class="navitem" data-side="memory"><span class="label">Memory</span></div>
-      <div class="navitem" data-side="logs"><span class="label">Logs</span></div>
-      <div class="navitem" data-side="settings"><span class="label">Settings</span></div>
-      <div class="navitem" data-side="chat"><span class="label">Chat</span></div>
+      <div class="navitem active" data-side="chat">Chat</div>
+      <div class="navitem" data-side="agents">Agents</div>
+      <div class="navitem" data-side="skills">Skills</div>
+      <div class="navitem" data-side="memory">Memory</div>
+      <div class="navitem" data-side="logs">Logs</div>
+      <div class="navitem" data-side="settings">Settings</div>
       <div class="navspacer"></div>
       <div class="foot">rune v0.1.0</div>
     </div>
@@ -216,10 +262,10 @@
     <div class="main">
       <!-- DASHBOARD TAB -->
       <div id="tab-dashboard">
-        <div id="side-agents" class="view">
+        <div id="side-agents" class="view hidden">
           <div class="col">
-            <div class="panel">
-              <h2>Active processes <span class="count" id="worker-count">0</span></h2>
+            <div>
+              <h1 class="section">Processes <span class="count" id="worker-count">0</span></h1>
               <div id="worker-list"></div>
             </div>
             <div class="terminal">
@@ -228,8 +274,8 @@
             </div>
           </div>
           <div class="col">
-            <div class="panel">
-              <h2>System</h2>
+            <div>
+              <h1 class="section" style="font-size:22px;">System</h1>
               <div class="stat-label"><span>cpu</span><span class="v" id="cpu-val">0%</span></div>
               <div class="bar-track"><div id="cpu-bar" style="width:0%"></div></div>
               <div class="stat-label"><span>memory</span><span class="v" id="mem-val">0 / 0 GB</span></div>
@@ -237,28 +283,25 @@
               <div class="stat-label"><span>api latency</span><span class="v" id="latency-val">0ms</span></div>
               <div class="sparkline" id="sparkline"></div>
             </div>
-            <div class="panel">
-              <h2>Scheduled</h2>
+            <div>
+              <h1 class="section" style="font-size:22px;">Scheduled</h1>
               <div id="cron-list"></div>
             </div>
           </div>
         </div>
 
         <div id="side-skills" class="view single hidden">
-          <div class="panel">
-            <h2>Skills <span class="count" id="skills-count">0</span></h2>
-            <div id="skills-list"></div>
-          </div>
+          <h1 class="section">Skills <span class="count" id="skills-count">0</span></h1>
+          <div id="skills-list"></div>
         </div>
 
         <div id="side-memory" class="view single hidden">
-          <div class="panel">
-            <h2>Memory axes</h2>
-            <div class="tiles" id="memory-tiles"></div>
-          </div>
+          <h1 class="section">Memory</h1>
+          <div class="tiles" id="memory-tiles"></div>
         </div>
 
         <div id="side-logs" class="view single hidden">
+          <h1 class="section">Logs</h1>
           <div class="terminal" style="margin-top:0;">
             <div class="term-head"><div class="dot"></div>full log<div class="spacer"></div></div>
             <div class="term-body" id="term-body-full" style="max-height:70vh;"></div>
@@ -266,19 +309,45 @@
         </div>
 
         <div id="side-settings" class="view single hidden">
-          <div class="panel">
-            <h2>Runtime config</h2>
-            <div id="settings-list"></div>
-          </div>
+          <h1 class="section">Settings</h1>
+
+          <h1 class="section" style="font-size:18px;margin-top:28px;">API keys &amp; tokens</h1>
+          <div id="env-settings-list"></div>
+
+          <h1 class="section" style="font-size:18px;margin-top:28px;">Model tiers</h1>
+          <div id="tier-settings-list"></div>
+
+          <h1 class="section" style="font-size:18px;margin-top:28px;">Agents</h1>
+          <div id="settings-list"></div>
         </div>
 
-        <div id="side-chat" class="view single hidden">
-          <div class="panel">
-            <h2>Chat</h2>
+        <div id="side-chat" class="view chat-view">
+          <div class="chat-col">
+            <h1 class="section">Chat <button id="new-chat" class="new-chat-btn">+ New chat</button></h1>
             <div class="chat-messages" id="messages"><div class="msg system">Say hello to start.</div></div>
             <div class="composer">
               <input id="input" type="text" placeholder="Message Rune…" autocomplete="off">
               <button id="send">Send</button>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <h1 class="section" style="font-size:20px;">Quick commands</h1>
+              <div class="cmd-list">
+                <button class="cmd-chip" data-cmd="/help">/help<span>list all commands</span></button>
+                <button class="cmd-chip" data-cmd="/agent">/agent<span>show current agent</span></button>
+                <button class="cmd-chip" data-cmd="/skills">/skills<span>list available skills</span></button>
+                <button class="cmd-chip" data-cmd="/crons">/crons<span>list scheduled jobs</span></button>
+                <button class="cmd-chip" data-cmd="/context">/context<span>session context info</span></button>
+                <button class="cmd-chip" data-cmd="/compact">/compact<span>compact history now</span></button>
+                <button class="cmd-chip" data-cmd="/session">/session<span>current session details</span></button>
+                <button class="cmd-chip" data-cmd="/bindings">/bindings<span>show routing bindings</span></button>
+                <button class="cmd-chip" data-cmd="/clear">/clear<span>start a fresh conversation</span></button>
+              </div>
+            </div>
+            <div>
+              <h1 class="section" style="font-size:20px;">History</h1>
+              <div class="cmd-list" id="session-list"></div>
             </div>
           </div>
         </div>
@@ -286,29 +355,27 @@
 
       <!-- NODES TAB -->
       <div id="tab-nodes" class="hidden">
-        <div class="panel">
-          <h2>Model tiers</h2>
-          <div class="tiles" id="nodes-tiles"></div>
-        </div>
+        <h1 class="section">Model tiers</h1>
+        <div class="tiles" id="nodes-tiles"></div>
       </div>
 
       <!-- BALANCER TAB -->
       <div id="tab-balancer" class="hidden">
         <div class="view">
           <div class="col">
-            <div class="panel">
-              <h2>Routing policy</h2>
+            <div>
+              <h1 class="section">Routing policy</h1>
               <div id="policy-list"></div>
             </div>
           </div>
           <div class="col">
-            <div class="panel">
-              <div style="font-family:var(--serif);font-size:30px;" id="percent-local">0<span style="font-size:12px;color:var(--text-dim);font-family:var(--sans);"> % served free</span></div>
-              <div class="bar-track" style="margin-top:12px;"><div id="meter-fill" style="width:0%;background:var(--moss);"></div></div>
+            <div>
+              <div class="meter-num" id="percent-local">0<span class="unit">% served free</span></div>
+              <div class="bar-track" style="margin-top:16px;"><div id="meter-fill" style="width:0%"></div></div>
               <div class="stat-label"><span id="saved-label">0 saved</span><span id="fireworks-label">0 on Fireworks</span></div>
             </div>
-            <div class="panel">
-              <h2>Calls by tier</h2>
+            <div>
+              <h1 class="section" style="font-size:22px;">Calls by tier</h1>
               <div id="tier-bars"></div>
             </div>
           </div>
@@ -319,21 +386,31 @@
 </div>
 
 <script>
-const clientId = "web-" + Math.random().toString(36).slice(2, 10);
+// Fixed (not per-load-random) so reloading this page resumes the same
+// session — but distinct from the CLI's source, so CLI and web chat stay
+// separate conversations, never mixed.
+const clientId = "web-user";
 
 /* ---------- nav ---------- */
-document.querySelectorAll("[data-topnav]").forEach(el => el.addEventListener("click", () => {
-  document.querySelectorAll("[data-topnav]").forEach(a => a.classList.remove("active"));
-  el.classList.add("active");
-  ["dashboard", "nodes", "balancer"].forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== el.dataset.topnav));
-}));
+function showTopNav(name) {
+  document.querySelectorAll("[data-topnav]").forEach(a => a.classList.toggle("active", a.dataset.topnav === name));
+  ["dashboard", "nodes", "balancer"].forEach(t => document.getElementById("tab-" + t).classList.toggle("hidden", t !== name));
+}
 
-document.querySelectorAll("[data-side]").forEach(el => el.addEventListener("click", () => {
-  document.querySelectorAll("[data-side]").forEach(a => a.classList.remove("active"));
-  el.classList.add("active");
+function showSidePanel(name) {
+  document.querySelectorAll("[data-side]").forEach(a => a.classList.toggle("active", a.dataset.side === name));
   ["agents", "skills", "memory", "logs", "settings", "chat"].forEach(s =>
-    document.getElementById("side-" + s).classList.toggle("hidden", s !== el.dataset.side));
-}));
+    document.getElementById("side-" + s).classList.toggle("hidden", s !== name));
+  // The side panels live inside the Dashboard tab — jump back to it so the
+  // click is actually visible regardless of which top tab was showing.
+  showTopNav("dashboard");
+  // Loaded on demand (not the 2.5s auto-poll) so typing into a field never
+  // gets clobbered by a background refresh mid-edit.
+  if (name === "settings") loadSettingsForm();
+}
+
+document.querySelectorAll("[data-topnav]").forEach(el => el.addEventListener("click", () => showTopNav(el.dataset.topnav)));
+document.querySelectorAll("[data-side]").forEach(el => el.addEventListener("click", () => showSidePanel(el.dataset.side)));
 
 /* ---------- chat (WebSocket) ---------- */
 const messagesEl = document.getElementById("messages");
@@ -341,19 +418,133 @@ const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const connStatus = document.getElementById("conn-status");
 
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Minimal markdown -> HTML: fenced code, inline code, bold, lists, paragraphs.
+// Input is escaped first so this is safe against both user and model text.
+function renderMarkdown(raw) {
+  const codeBlocks = [];
+  let text = escapeHtml(raw).replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    codeBlocks.push(code.replace(/\n$/, ""));
+    return ` CODEBLOCK${codeBlocks.length - 1} `;
+  });
+
+  text = text.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+  text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+  const blocks = text.split(/\n{2,}/).map((block) => {
+    const lines = block.split("\n").filter((l) => l.trim());
+    if (lines.length && lines.every((l) => /^\s*[-*]\s+/.test(l))) {
+      return "<ul>" + lines.map((l) => `<li>${l.replace(/^\s*[-*]\s+/, "")}</li>`).join("") + "</ul>";
+    }
+    if (lines.length && lines.every((l) => /^\s*\d+\.\s+/.test(l))) {
+      return "<ol>" + lines.map((l) => `<li>${l.replace(/^\s*\d+\.\s+/, "")}</li>`).join("") + "</ol>";
+    }
+    return `<p>${block.replace(/\n/g, "<br>")}</p>`;
+  });
+
+  return blocks.join("").replace(/ CODEBLOCK(\d+) /g, (_, i) =>
+    `<pre><code>${codeBlocks[Number(i)]}</code></pre>`
+  );
+}
+
 function addMessage(role, text) {
+  const row = document.createElement("div");
+  row.className = "msg-row " + role;
+
+  if (role !== "system") {
+    const avatar = document.createElement("div");
+    avatar.className = "avatar " + role;
+    avatar.textContent = role === "user" ? "Y" : "R";
+    row.appendChild(avatar);
+  }
+
   const div = document.createElement("div");
   div.className = "msg " + role;
-  div.textContent = text;
-  messagesEl.appendChild(div);
+  div.innerHTML = renderMarkdown(text);
+  row.appendChild(div);
+
+  messagesEl.appendChild(row);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+function renderMessages(messages) {
+  messagesEl.innerHTML = messages.length
+    ? ""
+    : '<div class="msg system">Say hello to start.</div>';
+  for (const m of messages) {
+    addMessage(m.role === "assistant" ? "agent" : "user", m.content);
+  }
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch("/api/history");
+    const { messages } = await res.json();
+    if (messages.length) renderMessages(messages);
+  } catch (e) { /* fresh session, nothing to load */ }
+}
+loadHistory();
+
+async function loadSessionList() {
+  try {
+    const res = await fetch("/api/chat/sessions");
+    const { sessions } = await res.json();
+    const list = document.getElementById("session-list");
+    list.innerHTML = sessions.length
+      ? ""
+      : '<div style="color:var(--dim);font-size:12px;">No past chats yet.</div>';
+    for (const s of sessions) {
+      const row = document.createElement("div");
+      row.className = "cmd-chip session-chip";
+      const when = new Date(s.updated_at).toLocaleString();
+      row.innerHTML = `
+        <div class="session-main">${s.preview}<span class="meta">${s.message_count} messages · ${when}</span></div>
+        <button class="session-delete" title="Delete this chat">✕</button>`;
+      row.querySelector(".session-main").addEventListener("click", () => resumeSession(s.id));
+      row.querySelector(".session-delete").addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteSession(s.id);
+      });
+      list.appendChild(row);
+    }
+  } catch (e) { /* ignore */ }
+}
+loadSessionList();
+
+async function resumeSession(sessionId) {
+  const res = await fetch("/api/chat/resume", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+  const { messages } = await res.json();
+  renderMessages(messages);
+}
+
+async function deleteSession(sessionId) {
+  await fetch("/api/chat/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+  loadSessionList();
+  loadHistory();
+}
+
+document.getElementById("new-chat").addEventListener("click", async () => {
+  await fetch("/api/chat/new", { method: "POST" });
+  renderMessages([]);
+  loadSessionList();
+});
+
 const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
 const ws = new WebSocket(wsProto + "//" + location.host + "/ws");
-ws.onopen = () => connStatus.textContent = "● connected";
-ws.onclose = () => connStatus.textContent = "○ disconnected";
-ws.onerror = () => connStatus.textContent = "○ error";
+ws.onopen = () => connStatus.textContent = "connected";
+ws.onclose = () => connStatus.textContent = "disconnected";
+ws.onerror = () => connStatus.textContent = "error";
 ws.onmessage = (evt) => {
   let data;
   try { data = JSON.parse(evt.data); } catch { return; }
@@ -371,6 +562,11 @@ function send() {
 sendBtn.addEventListener("click", send);
 input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
 
+document.querySelectorAll(".cmd-chip").forEach((btn) => btn.addEventListener("click", () => {
+  input.value = btn.dataset.cmd;
+  send();
+}));
+
 /* ---------- dashboard polling ---------- */
 function fmt(n) {
   n = Math.round(n);
@@ -386,12 +582,12 @@ function renderWorkers(workers) {
   for (const w of workers) {
     const pillClass = w.status === "RUNNING" ? "running" : (w.status === "ERROR" ? "error" : "idle");
     const div = document.createElement("div");
-    div.className = "card";
+    div.className = "row-item";
     div.innerHTML = `
       <div>
         <div class="name">${w.name}<span class="pill ${pillClass}">${w.status.toLowerCase()}</span></div>
-        <div class="task">uptime ${w.uptime}</div>
-      </div>`;
+      </div>
+      <div class="right">${w.uptime}</div>`;
     list.appendChild(div);
   }
 }
@@ -410,10 +606,10 @@ function renderLogsInto(el, logs) {
 
 function renderCrons(crons) {
   const list = document.getElementById("cron-list");
-  list.innerHTML = crons.length ? "" : '<div style="color:var(--text-dim);font-size:12px;">No scheduled crons.</div>';
+  list.innerHTML = crons.length ? "" : '<div class="empty-note">No scheduled crons.</div>';
   for (const c of crons) {
     const div = document.createElement("div");
-    div.className = "cron-card";
+    div.className = "cron-row";
     div.innerHTML = `<div class="row"><span>${c.name}</span><span class="in">in ${c.next_in}</span></div><div class="desc">${c.description}</div>`;
     list.appendChild(div);
   }
@@ -425,7 +621,7 @@ function renderSkills(skills) {
   list.innerHTML = "";
   for (const s of skills) {
     const div = document.createElement("div");
-    div.className = "card";
+    div.className = "row-item";
     div.innerHTML = `<div><div class="name">${s.name}</div><div class="task">${s.description}</div></div>`;
     list.appendChild(div);
   }
@@ -453,10 +649,92 @@ function renderSettings(agents) {
   }
 }
 
+async function loadSettingsForm() {
+  try {
+    const res = await fetch("/api/settings");
+    const s = await res.json();
+    renderEnvSettings(s.env);
+    renderTierSettings(s.tiers);
+  } catch (e) { /* ignore */ }
+}
+
+function renderEnvSettings(envVars) {
+  const list = document.getElementById("env-settings-list");
+  list.innerHTML = "";
+  for (const e of envVars) {
+    const row = document.createElement("div");
+    row.className = "settings-row";
+    row.innerHTML = `
+      <label>${e.key}</label>
+      <input type="password" placeholder="${e.set ? e.masked : "not set"}">
+      <button class="save-btn">Save</button>
+      <div class="status ${e.set ? "ok" : ""}">${e.set ? "set (" + e.masked + ")" : "not set"}</div>`;
+    const input = row.querySelector("input");
+    const status = row.querySelector(".status");
+    row.querySelector(".save-btn").addEventListener("click", async () => {
+      if (!input.value) return;
+      const res = await fetch("/api/settings/env", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: e.key, value: input.value }),
+      });
+      if (res.ok) {
+        status.textContent = "saved — live now";
+        status.classList.add("ok");
+        input.value = "";
+        input.placeholder = "••••" + input.placeholder.slice(-4);
+      } else {
+        status.textContent = "failed to save";
+        status.classList.remove("ok");
+      }
+    });
+    list.appendChild(row);
+  }
+}
+
+function renderTierSettings(tiers) {
+  const list = document.getElementById("tier-settings-list");
+  list.innerHTML = "";
+  for (const [name, tier] of Object.entries(tiers)) {
+    const row = document.createElement("div");
+    row.className = "settings-row";
+    row.innerHTML = `
+      <label>${name}</label>
+      <input type="text" class="f-provider" value="${tier.provider}" placeholder="provider">
+      <input type="text" class="f-model" value="${tier.model}" placeholder="model">
+      <input type="text" class="f-api_base" value="${tier.api_base || ""}" placeholder="api_base (optional)">
+      <span class="tools-check"><input type="checkbox" class="f-supports_tools" ${tier.supports_tools ? "checked" : ""}> tools</span>
+      <button class="save-btn">Save</button>
+      <div class="status"></div>`;
+    const status = row.querySelector(".status");
+    row.querySelector(".save-btn").addEventListener("click", async () => {
+      const fields = {
+        provider: row.querySelector(".f-provider").value,
+        model: row.querySelector(".f-model").value,
+        api_base: row.querySelector(".f-api_base").value || null,
+        supports_tools: row.querySelector(".f-supports_tools").checked,
+      };
+      const res = await fetch("/api/settings/tier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: name, fields }),
+      });
+      status.textContent = res.ok ? "saved — live now" : "failed to save";
+      status.classList.toggle("ok", res.ok);
+    });
+    list.appendChild(row);
+  }
+}
+
 function renderNodes(nodes) {
   const tiles = document.getElementById("nodes-tiles");
   tiles.innerHTML = "";
-  for (const [name, tier] of Object.entries(nodes.tiers || {})) {
+  const entries = Object.entries(nodes.tiers || {});
+  if (!nodes.enabled || entries.length === 0) {
+    tiles.innerHTML = '<div class="empty-note">Model tier routing is disabled — running a single fixed model. See <b>Settings</b> for the active model, or set <span style="font-family:var(--mono);">model_routing.enabled: true</span> in config.user.yaml to define tiers.</div>';
+    return;
+  }
+  for (const [name, tier] of entries) {
     const tile = document.createElement("div");
     tile.className = "tile";
     const badge = tier.billed ? '<span class="badge fireworks">fireworks</span>' : '<span class="badge local">local</span>';
@@ -468,7 +746,11 @@ function renderNodes(nodes) {
 function renderBalancer(balancer) {
   const list = document.getElementById("policy-list");
   list.innerHTML = "";
-  for (const [role, policy] of Object.entries(balancer.roles || {})) {
+  const roleEntries = Object.entries(balancer.roles || {});
+  if (roleEntries.length === 0) {
+    list.innerHTML = '<div class="empty-note">Model tier routing is disabled — no roles to balance across, every call uses the single fixed model. See <b>Settings</b>.</div>';
+  }
+  for (const [role, policy] of roleEntries) {
     const div = document.createElement("div");
     div.className = "role-flow";
     let html = `<span class="chip">${role}</span><span class="arrow">→</span><span class="chip">${policy.default}</span>`;
@@ -479,7 +761,7 @@ function renderBalancer(balancer) {
   }
 
   const m = balancer.live || {};
-  document.getElementById("percent-local").innerHTML = (m.percent_local || 0) + '<span style="font-size:12px;color:var(--text-dim);font-family:var(--sans);"> % served free</span>';
+  document.getElementById("percent-local").innerHTML = (m.percent_local || 0) + '<span class="unit">% served free</span>';
   document.getElementById("meter-fill").style.width = (m.percent_local || 0) + "%";
   document.getElementById("saved-label").textContent = fmt(m.saved_tokens || 0) + " saved";
   document.getElementById("fireworks-label").textContent = fmt(m.fireworks_tokens || 0) + " on Fireworks";
@@ -490,7 +772,7 @@ function renderBalancer(balancer) {
   const max = Math.max(1, ...entries.map(([, v]) => v));
   for (const [tier, count] of entries) {
     const row = document.createElement("div");
-    row.style.marginBottom = "10px";
+    row.style.marginBottom = "14px";
     row.innerHTML = `<div class="stat-label"><span>${tier}</span><span class="v">${fmt(count)}</span></div><div class="bar-track" style="margin-bottom:0;"><div style="width:${(count / max) * 100}%"></div></div>`;
     tierBars.appendChild(row);
   }

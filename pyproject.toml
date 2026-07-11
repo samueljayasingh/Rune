@@ -24,6 +24,11 @@ dependencies = [
     "croniter>=2.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pylint>=3.0.0",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -33,3 +38,13 @@ packages = ["src/rune"]
 
 [project.scripts]
 rune = "rune.cli.main:app"
+
+[tool.pylint."messages control"]
+# Real errors/fatal only for CI — this codebase has ~50 pre-existing style
+# warnings (broad-except, missing file encodings, etc.) inherited from its
+# tutorial origins that aren't bugs; gating CI on those would just make every
+# push red for unrelated reasons. Two static-analysis false positives
+# (dataclass/pydantic dynamic attributes) are suppressed inline instead,
+# since global disable-then-enable ordering isn't reliable here.
+disable = ["all"]
+enable = ["E", "F"]

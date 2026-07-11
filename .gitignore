@@ -46,6 +46,12 @@ docs/
 **/config.runtime.yaml
 .env
 
+# Workspace runtime data: user-specific, created by using the app, not
+# template content. Directories are recreated on demand.
+default_workspace/memories/**
+default_workspace/crons/**
+.event/
+
 **/uv.lock
 
 # local utils

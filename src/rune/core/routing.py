@@ -84,10 +84,13 @@ class RoutingTable:
         agent = Agent(agent_def, self.context)
         session = agent.new_session(source)
 
-        # Cache the session
-        self.context.config.set_runtime(
-            f"sources.{source_str}", SourceSessionConfig(session_id=session.session_id)
-        )
+        # Cache the session — both on disk and in the live config object,
+        # since set_runtime alone only writes to disk (config.runtime.yaml
+        # changes aren't picked up by the config-reload file watcher, which
+        # only watches config.user.yaml).
+        new_binding = SourceSessionConfig(session_id=session.session_id)
+        self.context.config.set_runtime(f"sources.{source_str}", new_binding)
+        self.context.config.sources[source_str] = new_binding
 
         return session.session_id
 
@@ -108,6 +111,6 @@ class RoutingTable:
                     "sources", self.context.config.sources
                 )
         else:
-            self.context.config.set_runtime(
-                f"""sources.{source_str}""", SourceSessionConfig(session_id=session_id)
-            )
+            new_binding = SourceSessionConfig(session_id=session_id)
+            self.context.config.set_runtime(f"sources.{source_str}", new_binding)
+            self.context.config.sources[source_str] = new_binding

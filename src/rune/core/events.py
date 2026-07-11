@@ -135,7 +135,7 @@ class Event:
     def to_dict(self) -> dict[str, Any]:
         """Serialize event to dictionary, including type."""
         result: dict[str, Any] = {"type": self.__class__.__name__}
-        for field_name in self.__dataclass_fields__:
+        for field_name in self.__dataclass_fields__:  # pylint: disable=no-member
             value = getattr(self, field_name)
             if field_name == "source":
                 result[field_name] = str(value)
@@ -152,7 +152,7 @@ class Event:
                 continue
             if k == "source":
                 kwargs[k] = EventSource.from_string(v)
-            elif k in cls.__dataclass_fields__:
+            elif k in cls.__dataclass_fields__:  # pylint: disable=no-member
                 kwargs[k] = v
         return cls(**kwargs)
 

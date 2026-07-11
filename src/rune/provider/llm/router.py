@@ -30,10 +30,20 @@ CLASSIFY_PROMPT = (
     "a greeting with a real task, classify by the task. If truly ambiguous or just "
     "a bare command/word, default to daily.\n\n"
     "- daily: greetings, small talk, one-step everyday facts/conversions, creative "
-    "writing, vague/ambiguous one-word input\n"
+    "writing, vague/ambiguous one-word input — but NEVER anything needing "
+    "current/live/external information or an actual tool/agent/skill invocation "
+    "(see reasoning below), even if it sounds like simple small talk\n"
     "- coding: write, debug, explain, or review code; error messages/stack traces; "
     "questions about algorithms or code behavior\n"
-    "- reasoning: multi-step math, logic, planning, or financial calculations\n\n"
+    "- reasoning: multi-step math, logic, planning, or financial calculations; "
+    "ALSO anything requiring current/live/real-world data a model can't know from "
+    "training alone — weather, news, sports scores, stock/crypto prices, "
+    "who-won/what-happened-today, current facts about specific people or events, "
+    "or anything else that needs a web lookup to answer correctly; ALSO any request "
+    "that needs a real tool, skill, or agent to actually run — saving/recalling a "
+    "memory, dispatching to another agent (e.g. ledger), running a skill, searching "
+    "or reading the web, scheduling a cron — even if the wording sounds like a "
+    "simple one-line instruction\n\n"
     "Examples:\n"
     "Request: hello world -> daily\n"
     "Request: what's 15% of 340 -> daily\n"
@@ -43,7 +53,13 @@ CLASSIFY_PROMPT = (
     "Request: TypeError: undefined is not a function, what does this mean -> coding\n"
     "Request: what's the time complexity of this sort? -> coding\n"
     "Request: if I invest $500/month at 7% for 30 years, how much will I have -> reasoning\n"
-    "Request: two trains leave stations 300 miles apart, when do they meet -> reasoning\n\n"
+    "Request: two trains leave stations 300 miles apart, when do they meet -> reasoning\n"
+    "Request: what's the weather in Texas -> reasoning\n"
+    "Request: who won the match yesterday -> reasoning\n"
+    "Request: what's the current price of Bitcoin -> reasoning\n"
+    "Request: ledger save it as a daily note -> reasoning\n"
+    "Request: remember that I prefer TypeScript -> reasoning\n"
+    "Request: search the web for the latest news on this -> reasoning\n\n"
     "Reply with only the category word, nothing else.\n\n"
     "Request: {content}"
 )
@@ -80,7 +96,10 @@ async def _classify(
             api_key=tier.api_key,
             api_base=tier.api_base,
             temperature=0,
-            max_tokens=20,
+            # Reasoning-tuned classifier models (e.g. gpt-oss) spend part of
+            # this budget on internal reasoning_content before the final
+            # answer; too low and content comes back empty.
+            max_tokens=150,
         )
         label = (response.choices[0].message.content or "").strip().lower()
     except Exception as e:
@@ -133,8 +152,6 @@ async def resolve_tiers(
         tier = model_routing.tiers.get(tier_name)
         if not tier:
             continue
-        if needs_tools and not tier.supports_tools:
-            continue
         if scoring_mode and not tier.scored:
             continue
         litellm_model = tier.litellm_model
@@ -149,6 +166,12 @@ async def resolve_tiers(
                 "api_base": (fw_base if (fw_base and is_fireworks) else tier.api_base),
                 "tier_name": tier_name,
                 "provider": tier.provider,
+                # Whether THIS tier should actually receive tool schemas, not
+                # whether the caller offered them: a tier that can't reliably
+                # do tool-calling still gets tried (via classification), just
+                # without tools attached — a plain answer beats a hang or a
+                # hallucinated tool call.
+                "attach_tools": needs_tools and tier.supports_tools,
             }
         )
 

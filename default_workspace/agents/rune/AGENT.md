@@ -2,6 +2,7 @@
 name: Rune
 description: Default assistant for general conversations, daily tasks, coding help, and creative work.
 allow_skills: true
+max_concurrency: 3
 llm:
   temperature: 0.7
   max_tokens: 4096

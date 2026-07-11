@@ -203,6 +203,18 @@ class HistoryStore:
         sessions.sort(key=lambda s: s.updated_at, reverse=True)
         return sessions
 
+    def delete_session(self, session_id: str) -> None:
+        """Remove a session's index entry and its message file."""
+        sessions = self._read_index()
+        idx = self._find_session_index(sessions, session_id)
+        if idx >= 0:
+            sessions.pop(idx)
+            self._write_index(sessions)
+
+        session_file = self._session_path(session_id)
+        if session_file.exists():
+            session_file.unlink()
+
     def get_messages(self, session_id: str) -> list[HistoryMessage]:
         """Get all messages for a session."""
         session_file = self._session_path(session_id)

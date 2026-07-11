@@ -276,7 +276,7 @@ class Config(BaseModel):
             new_config = Config.model_validate(config_data)
 
             # Update all fields from new config
-            for field_name in Config.model_fields:
+            for field_name in Config.model_fields:  # pylint: disable=not-an-iterable
                 setattr(self, field_name, getattr(new_config, field_name))
 
             return True

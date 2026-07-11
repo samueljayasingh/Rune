@@ -90,6 +90,7 @@ class LLMProvider:
                     "api_base": self.api_base,
                     "tier_name": "single",
                     "provider": self.provider,
+                    "attach_tools": True,
                 }
             ]
 
@@ -104,7 +105,7 @@ class LLMProvider:
             }
             if tier.get("api_base"):
                 request_kwargs["api_base"] = tier["api_base"]
-            if tools:
+            if tools and tier.get("attach_tools", True):
                 request_kwargs["tools"] = tools
             request_kwargs.update(kwargs)
 

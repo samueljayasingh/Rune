@@ -32,10 +32,6 @@ class WebSearchProvider(ABC):
             raise ValueError("Websearch not configured")
 
         match config.websearch.provider:
-            case "brave":
-                from .brave import BraveSearchProvider
-
-                return BraveSearchProvider(config)
             case "firecrawl":
                 from .firecrawl import FirecrawlSearchProvider
 
