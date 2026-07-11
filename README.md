@@ -1,15 +1,12 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 ```
- ██▀███   █    ██  ███▄    █ ▓█████
-▓██ ▒ ██▒ ██  ▓██▒ ██ ▀█   █ ▓█   ▀
-▓██ ░▄█ ▒▓██  ▒██░▓██  ▀█ ██▒▒███
-▒██▀▀█▄  ▓▓█  ░██░▓██▒  ▐▌██▒▒▓█  ▄
-░██▓ ▒██▒▒▒█████▓ ▒██░   ▓██░░▒████▒
-░ ▒▓ ░▒▓░░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒ ░░ ▒░ ░
-  ░▒ ░ ▒░░░▒░ ░ ░ ░ ░░   ░ ▒░ ░ ░  ░
-  ░░   ░  ░░░ ░ ░    ░   ░ ░    ░
-   ░        ░              ░    ░  ░
+██████╗ ██╗   ██╗███╗   ██╗███████╗
+██╔══██╗██║   ██║████╗  ██║██╔════╝
+██████╔╝██║   ██║██╔██╗ ██║█████╗
+██╔══██╗██║   ██║██║╚██╗██║██╔══╝
+██║  ██║╚██████╔╝██║ ╚████║███████╗
+╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 ```
 
 **An AgentOS for minimal devices.**
@@ -47,48 +44,11 @@ Rune is **not just a chatbot**. It's a persistent, always-on system with:
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                         RUNE SERVER                                  │
-│                                                                      │
-│  ┌────────────┐  ┌──────────────┐  ┌──────────────┐                │
-│  │  EventBus   │  │ AgentWorker  │  │ CronWorker   │                │
-│  │  (pub/sub)  │◄─┤  (sessions)  │  │  (scheduler) │                │
-│  └──────┬─────┘  └──────────────┘  └──────────────┘                │
-│         │                                                            │
-│         ▼                                                            │
-│  ┌──────────────┐  ┌──────────────────┐  ┌───────────────┐         │
-│  │ DeliveryWorker│  │ WebSocketWorker  │  │ ChannelWorker │         │
-│  │ (outbound)   │  │ (dashboard + ws) │  │ (TG/Discord)  │         │
-│  └──────────────┘  └──────────────────┘  └───────────────┘         │
-│                                                                      │
-│  ┌──────────────────────────────────────────────────────┐           │
-│  │              MODEL ROUTING ENGINE                     │           │
-│  │                                                       │           │
-│  │   Request ──► Classifier (Gemma 4 local)              │           │
-│  │                    │                                   │           │
-│  │              ┌─────┼─────┐                            │           │
-│  │              ▼     ▼     ▼                            │           │
-│  │           daily  coding  reasoning                    │           │
-│  │           (local) (cloud) (cloud)                     │           │
-│  │                                                       │           │
-│  │   Gemma 4 ◄──┘     │         │                       │           │
-│  │   (Ollama)    Kimi K2  DeepSeek V4                   │           │
-│  │               (Fireworks) (Fireworks)                 │           │
-│  └──────────────────────────────────────────────────────┘           │
-│                                                                      │
-│  ┌─────────────────────────────────────────┐                        │
-│  │           WORKSPACE (volume)             │                        │
-│  │  agents/ │ skills/ │ crons/ │ memories/  │                        │
-│  │  config.user.yaml │ BOOTSTRAP.md         │                        │
-│  └─────────────────────────────────────────┘                        │
-│                                                                      │
-│  ┌────────────────────────────────────────┐                         │
-│  │         OBSERVABILITY                   │                         │
-│  │  Prometheus (metrics) + Grafana (dash)  │                         │
-│  └────────────────────────────────────────┘                         │
-└──────────────────────────────────────────────────────────────────────┘
-```
+<div align="center">
+
+![Rune Architecture](assets/RuneArch.png)
+
+</div>
 
 ---
 
@@ -728,4 +688,4 @@ MIT
 Built by [Samuel Jayasingh](https://github.com/samueljayasingh) at [Spritle](https://spritle.com)
 
 </div>
-]]>
+
