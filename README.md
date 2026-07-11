@@ -678,13 +678,13 @@ pylint src/rune/
 
 ## License
 
-MIT
+[Apache License 2.0](LICENSE)
 
 ---
 
 <div align="center">
 
-Built by [Samuel Jayasingh](https://github.com/samueljayasingh) at [Spritle](https://spritle.com)
+Built by [Samuel Jayasingh](https:samueljayasingh.in) at [Spritle](https://spritle.com)
 
 </div>
 
