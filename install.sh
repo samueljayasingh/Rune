@@ -27,7 +27,16 @@ else
   if [ -d .venv ]; then
     echo ".venv already exists, reusing it."
   else
-    python3 -m venv .venv
+    if ! python3 -m venv .venv 2>/dev/null; then
+      warn "python3-venv missing, attempting to install it..."
+      if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y python3-venv python3.12-venv || true
+        python3 -m venv .venv
+      else
+        warn "Could not install python3-venv automatically. Please install it manually."
+        exit 1
+      fi
+    fi
   fi
   # shellcheck source=/dev/null
   source .venv/bin/activate
