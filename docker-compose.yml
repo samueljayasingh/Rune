@@ -1,4 +1,20 @@
 services:
+  rune:
+    build: .
+    image: rune:latest
+    restart: unless-stopped
+    ports:
+      - "${RUNE_PORT:-8000}:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./default_workspace:/workspace
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - prometheus
+      - grafana
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
