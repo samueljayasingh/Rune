@@ -14,9 +14,10 @@ warn() { printf '\033[1;33m!!\033[0m %s\n' "$1"; }
 # ---------- 1. Python environment ----------
 log "Setting up Python environment"
 if command -v uv >/dev/null 2>&1; then
-  if [ -d .venv ]; then
-    echo ".venv already exists, reusing it."
+  if [ -f .venv/bin/activate ]; then
+    echo ".venv already exists and is valid, reusing it."
   else
+    rm -rf .venv
     uv venv .venv
   fi
   # shellcheck source=/dev/null
@@ -24,9 +25,10 @@ if command -v uv >/dev/null 2>&1; then
   uv pip install -e ".[dev]"
 else
   warn "uv not found, falling back to python -m venv + pip"
-  if [ -d .venv ]; then
-    echo ".venv already exists, reusing it."
+  if [ -f .venv/bin/activate ]; then
+    echo ".venv already exists and is valid, reusing it."
   else
+    rm -rf .venv
     if ! python3 -m venv .venv 2>/dev/null; then
       warn "python3-venv missing, attempting to install it..."
       if command -v apt-get >/dev/null 2>&1; then
