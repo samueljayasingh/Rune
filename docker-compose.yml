@@ -38,3 +38,12 @@ services:
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+
+  ollama:
+    image: ollama/ollama:rocm
+    restart: unless-stopped
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    volumes:
+      - ./ollama_data:/root/.ollama

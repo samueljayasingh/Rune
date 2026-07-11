@@ -43,7 +43,7 @@ model_routing:
       provider: fireworks_ai
       supports_tools: true
     daily:
-      api_base: http://localhost:11434
+      api_base: http://ollama:11434
       api_key: not-needed
       model: gemma4:e2b-it-qat
       provider: ollama

@@ -242,8 +242,11 @@ cp .env.example .env
 # Edit .env with your API keys
 nano .env
 
-# Boot everything (builds image, starts Rune + Prometheus + Grafana)
+# Boot everything (builds image, starts Rune + Prometheus + Grafana + Ollama)
 bash boot.sh
+
+# If this is your first time booting, pull the local Gemma model into the container
+docker compose exec ollama ollama pull gemma4:e2b-it-qat
 ```
 
 Override the default port if 8000 is taken:
