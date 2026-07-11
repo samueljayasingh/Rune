@@ -42,7 +42,6 @@ Thumbs.db
 
 docs/
 
-**/config.user.yaml
 **/config.runtime.yaml
 .env
 

@@ -1,0 +1,60 @@
+api:
+  host: 0.0.0.0
+  port: 8000
+channels:
+  discord:
+    bot_token: ${DISCORD_BOT_TOKEN}
+  enabled: true
+  telegram:
+    bot_token: ${TELEGRAM_BOT_TOKEN}
+default_agent: rune
+llm:
+  api_base: null
+  api_key: ${FIREWORKS_API_KEY}
+  max_tokens: 2048
+  model: accounts/fireworks/models/deepseek-v4-flash
+  provider: fireworks_ai
+  temperature: 0.7
+model_routing:
+  enabled: true
+  roles:
+    agent_turn:
+      categories:
+        coding: coding
+        daily: daily
+        reasoning: reasoning
+      classifier_tier: classifier
+      classify: true
+      default: daily
+      escalate_to: reasoning
+    compaction:
+      default: daily
+      escalate_to: reasoning
+  tiers:
+    classifier:
+      api_key: ${FIREWORKS_API_KEY}
+      model: accounts/fireworks/models/gpt-oss-20b
+      provider: fireworks_ai
+      supports_tools: false
+    coding:
+      api_base: null
+      api_key: ${FIREWORKS_API_KEY}
+      model: accounts/fireworks/models/kimi-k2p7-code
+      provider: fireworks_ai
+      supports_tools: true
+    daily:
+      api_base: http://localhost:11434
+      api_key: not-needed
+      model: gemma4:e2b-it-qat
+      provider: ollama
+      supports_tools: false
+    reasoning:
+      api_key: ${FIREWORKS_API_KEY}
+      model: accounts/fireworks/models/deepseek-v4-flash
+      provider: fireworks_ai
+      supports_tools: true
+webread:
+  provider: crawl4ai
+websearch:
+  api_key: ${FIRECRAWL_API_KEY}
+  provider: firecrawl
