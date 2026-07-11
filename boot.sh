@@ -10,8 +10,8 @@ log()  { printf '\n\033[1;36m==>\033[0m %s\n' "$1"; }
 warn() { printf '\033[1;33m!!\033[0m %s\n' "$1"; }
 
 # ---------- venv ----------
-if [ ! -d .venv ]; then
-  warn ".venv not found — run ./install.sh first."
+if [ ! -f .venv/bin/activate ]; then
+  warn ".venv not found or broken — run ./install.sh first."
   exit 1
 fi
 # shellcheck source=/dev/null
