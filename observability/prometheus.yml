@@ -2,6 +2,6 @@ scrape_configs:
   - job_name: rune
     scrape_interval: 10s
     static_configs:
-      # host.docker.internal + extra_hosts (in docker-compose.yml) lets the
-      # container reach `rune server` running on the host's port 8000.
-      - targets: ["host.docker.internal:8000"]
+      # Uses Docker Compose's internal DNS — "rune" resolves to the
+      # Rune container. Port 8000 is the container-internal port.
+      - targets: ["rune:8000"]

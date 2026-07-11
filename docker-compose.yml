@@ -9,6 +9,7 @@ services:
       - .env
     volumes:
       - ./default_workspace:/workspace
+      - ./src:/app/src
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
