@@ -682,9 +682,20 @@ pylint src/rune/
 
 ---
 
+## Contribution
+
+- If you have any suggestions to this README or about Rune, feel free to inform me. And if you liked, you are free to use it for yourself.(P.S. Star it too!! 😬 )
+
+- Your Contributions are much welcomed here!
+   > Fork the project
+   > > Compile your work
+   > > > Call in for a Pull Request
+
+
+Last Edited on: 12/07/2026
+
 <div align="center">
 
-Built by [Samuel Jayasingh](https:samueljayasingh.in) at [Spritle](https://spritle.com)
-
+Built by [Samuel Jayasingh](https:samueljayasingh.in) 
 </div>
 
