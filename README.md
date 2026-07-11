@@ -1,13 +1,6 @@
 <div align="center">
 
-```
-██████╗ ██╗   ██╗███╗   ██╗███████╗
-██╔══██╗██║   ██║████╗  ██║██╔════╝
-██████╔╝██║   ██║██╔██╗ ██║█████╗
-██╔══██╗██║   ██║██║╚██╗██║██╔══╝
-██║  ██║╚██████╔╝██║ ╚████║███████╗
-╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-```
+![Rune](assets/Rune.png)
 
 **An AgentOS for minimal devices.**
 
@@ -19,6 +12,9 @@ _persistent memory, scheduled tasks, and multi-channel delivery_
 [![Gemma 4](https://img.shields.io/badge/Local_Model-Gemma_4-4285F4?logo=google&logoColor=white)](https://ai.google.dev/gemma)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://docker.com)
+[![AMD GPU](https://img.shields.io/badge/Hardware-AMD_GPU-ED1C24?logo=amd&logoColor=white)](https://www.amd.com)
+[![Fireworks AI](https://img.shields.io/badge/Cloud_LLM-Fireworks_AI-ff69b4?logo=fireworks)](https://fireworks.ai)
+[![Grafana](https://img.shields.io/badge/Observability-Grafana-F46800?logo=grafana&logoColor=white)](https://grafana.com)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 </div>
