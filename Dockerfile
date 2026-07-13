@@ -15,8 +15,10 @@ COPY src/ ./src/
 # Install the package and dependencies
 RUN pip install --no-cache-dir -e ".[dev]"
 
-# The workspace (agents, skills, memories, config) is volume-mounted at runtime.
-# Default workspace is provided in the repo and mounted by docker-compose.
+# Bake in the default workspace so the image boots standalone (no bind mount required).
+# docker-compose still bind-mounts ./default_workspace over this for local dev.
+COPY default_workspace/ /workspace/
+
 VOLUME ["/workspace"]
 
 EXPOSE 8000
